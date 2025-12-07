@@ -29,9 +29,161 @@ def create_tables():
     """
     A function to create the necessary tables for the project.
     """
-    connection = get_connection()
+    con = get_connection()
     # Implement
     pass
+    commands = (
+    """
+    CREATE TABLE users (
+        id SERIAL PRIMARY KEY,
+        user_name VARCHAR(255) UNIQUE NOT NULL, 
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) UNIQUE NOT NULL,
+        registration_date DATE NOT NULL DEFAULT CURRENT_DATE,
+        user_status INT REFERENCES user_statuses(id) NOT NULL,
+        birth_date DATE NOT NULL DEFAULT CURRENT_DATE
+    )
+    """,
+    """ CREATE TABLE user_statuses (
+            id SERIAL PRIMARY KEY,
+            user_status VARCHAR NOT NULL
+            )
+    """,
+    """
+    CREATE TABLE sessions (
+        id SERIAL PRIMARY KEY,
+        session_name VARCHAR(255) NOT NULL,
+        host_user_id INT NOT NULL REFERENCES users(id),
+        active_quiz INT REFERENCES quizzes(id),
+        qr_code_id INT REFERENCES qr_codes(id),
+        session_status INT NOT NULL REFERENCES session_statuses(id),
+        started_at TIMESTAMP,
+        ended_at TIMESTAMP,
+        current_question_id INT REFERENCES questions(id),
+        session_code INT NOT NULL
+        )
+    """,
+    """ CREATE TABLE session_statuses (
+        id SERIAL PRIMARY KEY,
+        status_type VARCHAR(255) UNIQUE NOT NULL
+        )
+    """,
+    """
+    CREATE TABLE session_players (
+        id SERIAL PRIMARY KEY,
+        display_name VARCHAR(255) UNIQUE NOT NULL,
+        session_id INT NOT NULL REFERENCES sessions(id),
+        user_id INT REFERENCES users(id),
+        joined_at TIMESTAMP,
+        player_points INT DEFAULT 0
+        )
+    """,
+    """
+    CREATE TABLE session_scoreboard (
+        id SERIAL PRIMARY KEY,
+        session_id INT NOT NULL REFERENCES sessions(id),
+        player_id INT NOT NULL REFERENCES session_players(id),
+        total_score INT DEFAULT 0,
+        correct_answers INT DEFAULT 0,
+        rank INT
+        )
+    """,
+    """ CREATE TABLE qr_codes (
+            id SERIAL PRIMARY KEY,
+            qr_link VARCHAR(255) NOT NULL
+            )
+    """,
+    """
+    CREATE TABLE quizzes (
+        id SERIAL PRIMARY KEY,
+        quiz_creator_id INT NOT NULL REFERENCES creators(id),
+        quiz_title VARCHAR(255) NOT NULL,
+        quiz_description TEXT, 
+        intro_image INT REFERENCES images(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP,
+        is_public BOOLEAN
+        )
+    """,
+    """
+    CREATE TABLE quiz_hashtags (
+        id SERIAL PRIMARY KEY,
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        hashtag_name VARCHAR(255) NOT NULL ------------------------------- FIXA M2M??
+        )
+    """,
+    """
+    CREATE TABLE questions (
+        id SERIAL PRIMARY KEY,
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        question_text VARCHAR(255) NOT NULL,
+        question_order INT,
+        time_limit INT NOT NULL,
+        points INT DEFAULT 100,
+        question_type INT NOT NULL REFERENCES question_types(id),
+        image INT NOT NULL REFERENCES images(id)
+        )
+    """,
+    """ CREATE TABLE question_types (
+            id SERIAL PRIMARY KEY,
+            question_type VARCHAR(255) UNIQUE NOT NULL
+            )
+    """,
+    """
+    CREATE TABLE answer_alternatives (
+        id SERIAL PRIMARY KEY,
+        question_id INT NOT NULL REFERENCES questions(id),
+        answer_text VARCHAR(255) NOT NULL,
+        correct_status BOOLEAN NOT NULL,
+        answer_icon INT NOT NULL REFERENCES answer_icons(id),
+        answer_order INT
+        )
+    """,
+    """ CREATE TABLE answer_icons (
+        id SERIAL PRIMARY KEY,
+        icon_image INT NOT NULL REFERENCES images(id)
+        )
+    """,
+    """
+    CREATE TABLE player_answers (
+        id SERIAL PRIMARY KEY,
+        player_id INT NOT NULL REFERENCES session_players(id),
+        session_id INT NOT NULL REFERENCES sessions(id),
+        question_id INT NOT NULL REFERENCES questions(id),
+        answer_id INT NOT NULL REFERENCES answer_alternatives(id),
+        response_time INT NOT NULL,
+        points_earned INT DEFAULT 0,
+        is_correct BOOLEAN
+        )
+    """,
+    """
+    CREATE TABLE courses (
+        id SERIAL PRIMARY KEY,
+        course_name VARCHAR(255) UNIQUE NOT NULL,
+        description TEXT,
+        quizzes INT REFERENCES quizzes(id)
+        )
+    """,
+    """
+    CREATE TABLE channels (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        description TEXT,
+        quizzes INT REFERENCES quizzes(id)
+        )
+    """,
+    """
+    CREATE TABLE creators (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        user_id INT NOT NULL REFERENCES users(id)
+        )
+    """,
+    """ CREATE TABLE creator_profiles (
+        id SERIAL PRIMARY KEY,
+        creator_id INT NOT NULL REFERENCES creators(id)
+        )
+    """)
 
 
 if __name__ == "__main__":
