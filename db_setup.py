@@ -16,23 +16,33 @@ def get_connection():
     this way we'll start a new connection each time
     someone hits one of our endpoints, which isn't great for performance
     """
-    return psycopg2.connect(
-        dbname=DATABASE_NAME,
-        user="postgres",  # change if needed
-        password=PASSWORD,
-        host="localhost",  # change if needed
-        port="5432",  # change if needed
-    )
+    try:
+        conn = psycopg2.connect(
+            dbname=DATABASE_NAME,
+            user="thomasdeming",  # change if needed
+            password=PASSWORD,
+            host="localhost",  # change if needed
+            port="5432",  # change if needed
+        )
+        print("Successful connection")
+        return conn
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
 
 
 def create_tables():
     """
     A function to create the necessary tables for the project.
     """
+    
     con = get_connection()
-    # Implement
-    pass
+
     commands = (
+    """ CREATE TABLE user_statuses (
+            id SERIAL PRIMARY KEY,
+            user_status VARCHAR NOT NULL
+            )
+    """,
     """
     CREATE TABLE users (
         id SERIAL PRIMARY KEY,
@@ -44,10 +54,78 @@ def create_tables():
         birth_date DATE NOT NULL DEFAULT CURRENT_DATE
     )
     """,
-    """ CREATE TABLE user_statuses (
+    """
+    CREATE TABLE creators (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE NOT NULL,
+        user_id INT NOT NULL REFERENCES users(id)
+        )
+    """,
+    """ CREATE TABLE qr_codes (
             id SERIAL PRIMARY KEY,
-            user_status VARCHAR NOT NULL
+            qr_link VARCHAR(255) NOT NULL
             )
+    """,
+    """ CREATE TABLE images (
+            id SERIAL PRIMARY KEY,
+            image_url VARCHAR(255) not NULL
+            )
+    """,
+    """
+    CREATE TABLE quizzes (
+        id SERIAL PRIMARY KEY,
+        quiz_creator_id INT NOT NULL REFERENCES creators(id),
+        quiz_title VARCHAR(255) NOT NULL,
+        quiz_description TEXT, 
+        intro_image INT REFERENCES images(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP,
+        is_public BOOLEAN
+        )
+    """,
+    """
+    CREATE TABLE quiz_hashtags (
+        id SERIAL PRIMARY KEY,
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        hashtag_name VARCHAR(255) NOT NULL
+        )
+    """,
+    """ CREATE TABLE question_types (
+            id SERIAL PRIMARY KEY,
+            question_type VARCHAR(255) UNIQUE NOT NULL
+            )
+    """,
+    """
+    CREATE TABLE questions (
+        id SERIAL PRIMARY KEY,
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        question_text VARCHAR(255) NOT NULL,
+        question_order INT,
+        time_limit INT NOT NULL,
+        points INT DEFAULT 100,
+        question_type INT NOT NULL REFERENCES question_types(id),
+        image INT NOT NULL REFERENCES images(id)
+        )
+    """,
+    """ CREATE TABLE answer_icons (
+        id SERIAL PRIMARY KEY,
+        icon_image INT NOT NULL REFERENCES images(id)
+        )
+    """,
+    """
+    CREATE TABLE answer_alternatives (
+        id SERIAL PRIMARY KEY,
+        question_id INT NOT NULL REFERENCES questions(id),
+        answer_text VARCHAR(255) NOT NULL,
+        correct_status BOOLEAN NOT NULL,
+        answer_icon INT NOT NULL REFERENCES answer_icons(id),
+        answer_order INT
+        )
+    """,
+    """ CREATE TABLE session_statuses (
+        id SERIAL PRIMARY KEY,
+        status_type VARCHAR(255) UNIQUE NOT NULL
+        )
     """,
     """
     CREATE TABLE sessions (
@@ -61,11 +139,6 @@ def create_tables():
         ended_at TIMESTAMP,
         current_question_id INT REFERENCES questions(id),
         session_code INT NOT NULL
-        )
-    """,
-    """ CREATE TABLE session_statuses (
-        id SERIAL PRIMARY KEY,
-        status_type VARCHAR(255) UNIQUE NOT NULL
         )
     """,
     """
@@ -86,62 +159,6 @@ def create_tables():
         total_score INT DEFAULT 0,
         correct_answers INT DEFAULT 0,
         rank INT
-        )
-    """,
-    """ CREATE TABLE qr_codes (
-            id SERIAL PRIMARY KEY,
-            qr_link VARCHAR(255) NOT NULL
-            )
-    """,
-    """
-    CREATE TABLE quizzes (
-        id SERIAL PRIMARY KEY,
-        quiz_creator_id INT NOT NULL REFERENCES creators(id),
-        quiz_title VARCHAR(255) NOT NULL,
-        quiz_description TEXT, 
-        intro_image INT REFERENCES images(id),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP,
-        is_public BOOLEAN
-        )
-    """,
-    """
-    CREATE TABLE quiz_hashtags (
-        id SERIAL PRIMARY KEY,
-        quiz_id INT NOT NULL REFERENCES quizzes(id),
-        hashtag_name VARCHAR(255) NOT NULL ------------------------------- FIXA M2M??
-        )
-    """,
-    """
-    CREATE TABLE questions (
-        id SERIAL PRIMARY KEY,
-        quiz_id INT NOT NULL REFERENCES quizzes(id),
-        question_text VARCHAR(255) NOT NULL,
-        question_order INT,
-        time_limit INT NOT NULL,
-        points INT DEFAULT 100,
-        question_type INT NOT NULL REFERENCES question_types(id),
-        image INT NOT NULL REFERENCES images(id)
-        )
-    """,
-    """ CREATE TABLE question_types (
-            id SERIAL PRIMARY KEY,
-            question_type VARCHAR(255) UNIQUE NOT NULL
-            )
-    """,
-    """
-    CREATE TABLE answer_alternatives (
-        id SERIAL PRIMARY KEY,
-        question_id INT NOT NULL REFERENCES questions(id),
-        answer_text VARCHAR(255) NOT NULL,
-        correct_status BOOLEAN NOT NULL,
-        answer_icon INT NOT NULL REFERENCES answer_icons(id),
-        answer_order INT
-        )
-    """,
-    """ CREATE TABLE answer_icons (
-        id SERIAL PRIMARY KEY,
-        icon_image INT NOT NULL REFERENCES images(id)
         )
     """,
     """
@@ -172,21 +189,26 @@ def create_tables():
         quizzes INT REFERENCES quizzes(id)
         )
     """,
-    """
-    CREATE TABLE creators (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) UNIQUE NOT NULL,
-        user_id INT NOT NULL REFERENCES users(id)
-        )
-    """,
     """ CREATE TABLE creator_profiles (
         id SERIAL PRIMARY KEY,
         creator_id INT NOT NULL REFERENCES creators(id)
         )
     """)
 
+    try:
+        with con.cursor() as cur:
+            for command in commands:
+                cur.execute(command)
+            con.commit()
+        print("Tables created successfully.")
+    
+    except (psycopg2.DatabaseError, Exception) as error:
+        print(error)
+        con.rollback()
+
+    finally:
+        con.close()
 
 if __name__ == "__main__":
     # Only reason to execute this file would be to create new tables, meaning it serves a migration file
     create_tables()
-    print("Tables created successfully.")
