@@ -148,6 +148,89 @@ def get_item(con, table, item_id): # dålig säkerhet, måste fixas eller skitas
 #             item_id = cursor.fetchone()["id"]
 #     return item_id
 
+def add_user(con, user_name, email, password, registration_date, user_status, birth_date):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO users (user_name, email, password, registration_date, user_status, birth_date)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (user_name, email, password, registration_date, user_status, birth_date),
+            )
+            user_id = cursor.fetchone()["id"]
+            con.commit()
+    return user_id
+
+def add_quiz(con, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO quizzes (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public)
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public),
+            )
+            quiz_id = cursor.fetchone()["id"]
+            con.commit()
+    return quiz_id
+
+def add_question(con, quiz_id, question_text, question_order, time_limit, points, question_type, image):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO questions (quiz_id, question_text, question_order, time_limit, points, question_type, image)
+                VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (quiz_id, question_text, question_order, time_limit, points, question_type, image),
+            )
+            question_id = cursor.fetchone()["id"]
+            con.commit()
+    return question_id
+
+def add_answer_alternative(con, question_id, answer_text, is_correct, answer_icon, answer_order):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO answer_alternatives (question_id, answer_text, is_correct, answer_icon, answer_order)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id;""",
+                (question_id, answer_text, is_correct, answer_icon, answer_order),
+            )
+            answer_alternative_id = cursor.fetchone()["id"]
+            con.commit()
+    return answer_alternative_id
+
+def add_player_answer(con, player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO player_answers (player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct)
+                VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct),
+            )
+            player_answer = cursor.fetchone()["id"]
+            con.commit()
+            return player_answer
+
+def add_session(con, session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO sessions (session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code),
+            )
+            session_id = cursor.fetchone()["id"]
+            con.commit()
+            return session_id
+
+def add_session_scoreboard(con, session_id, player_id, total_score, correct_answers, rank):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO session_scoreboard (session_id, player_id, total_score, correct_answers, rank)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id;"""
+                (session_id, player_id, total_score, correct_answers, rank),
+            )
+            scoreboard_id = cursor.fetchone()["id"]
+            con.commit()
+            return scoreboard_id
 
 # STATISKA VÄRDEN KAN INSERTAS I PGADMIN
 # MER DYNAMISKA HÄR I METODERNA
