@@ -38,3 +38,30 @@ class UserPatch(BaseModel):
     registration_date: Optional[datetime] = None
     user_status: Optional[int] = None
     birth_date: Optional[date] = None
+
+class QuizCreate(BaseModel):
+    quiz_creator_id: int
+    quiz_title: str
+    quiz_description: str
+    intro_image: int
+    created_at: datetime
+    updated_at: datetime
+    is_public: bool
+
+class QuizResponse(BaseModel):
+    quiz_creator_id: int
+    quiz_title: str
+    quiz_description: str
+    intro_image: int
+    created_at: datetime
+    updated_at: datetime
+    is_public: bool
+
+class QuizUpdate(BaseModel):
+    quiz_creator_id: int
+    quiz_title: str
+    quiz_description: str
+    intro_image: int
+    created_at: datetime
+    updated_at: datetime
+    is_public: bool
