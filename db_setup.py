@@ -38,13 +38,13 @@ def create_tables():
     con = get_connection()
 
     commands = (
-    """ CREATE TABLE user_statuses (
+    """ CREATE TABLE IF NOT EXISTS user_statuses (
             id SERIAL PRIMARY KEY,
             user_status VARCHAR NOT NULL
             )
     """,
     """
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         user_name VARCHAR(255) UNIQUE NOT NULL, 
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -55,24 +55,24 @@ def create_tables():
     )
     """,
     """
-    CREATE TABLE creators (
+    CREATE TABLE IF NOT EXISTS creators (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL,
         user_id INT NOT NULL REFERENCES users(id)
         )
     """,
-    """ CREATE TABLE qr_codes (
+    """ CREATE TABLE IF NOT EXISTS qr_codes (
             id SERIAL PRIMARY KEY,
             qr_link VARCHAR(255) NOT NULL
             )
     """,
-    """ CREATE TABLE images (
+    """ CREATE TABLE IF NOT EXISTS images (
             id SERIAL PRIMARY KEY,
             image_url VARCHAR(255) not NULL
             )
     """,
     """
-    CREATE TABLE quizzes (
+    CREATE TABLE IF NOT EXISTS quizzes (
         id SERIAL PRIMARY KEY,
         quiz_creator_id INT NOT NULL REFERENCES creators(id),
         quiz_title VARCHAR(255) NOT NULL,
@@ -84,7 +84,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE quiz_hashtags (
+    CREATE TABLE IF NOT EXISTS quiz_hashtags (
         id SERIAL PRIMARY KEY,
         quiz_id INT NOT NULL REFERENCES quizzes(id),
         hashtag_name VARCHAR(255) NOT NULL
@@ -96,7 +96,7 @@ def create_tables():
             )
     """,
     """
-    CREATE TABLE questions (
+    CREATE TABLE IF NOT EXISTS questions (
         id SERIAL PRIMARY KEY,
         quiz_id INT NOT NULL REFERENCES quizzes(id),
         question_text VARCHAR(255) NOT NULL,
@@ -107,13 +107,13 @@ def create_tables():
         image INT NOT NULL REFERENCES images(id)
         )
     """,
-    """ CREATE TABLE answer_icons (
+    """ CREATE TABLE IF NOT EXISTS answer_icons (
         id SERIAL PRIMARY KEY,
         icon_image INT NOT NULL REFERENCES images(id)
         )
     """,
     """
-    CREATE TABLE answer_alternatives (
+    CREATE TABLE IF NOT EXISTS answer_alternatives (
         id SERIAL PRIMARY KEY,
         question_id INT NOT NULL REFERENCES questions(id),
         answer_text VARCHAR(255) NOT NULL,
@@ -122,13 +122,13 @@ def create_tables():
         answer_order INT
         )
     """,
-    """ CREATE TABLE session_statuses (
+    """ CREATE TABLE IF NOT EXISTS session_statuses (
         id SERIAL PRIMARY KEY,
         status_type VARCHAR(255) UNIQUE NOT NULL
         )
     """,
     """
-    CREATE TABLE sessions (
+    CREATE TABLE IF NOT EXISTS sessions (
         id SERIAL PRIMARY KEY,
         session_name VARCHAR(255) NOT NULL,
         host_user_id INT NOT NULL REFERENCES users(id),
@@ -142,7 +142,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE session_players (
+    CREATE TABLE IF NOT EXISTS session_players (
         id SERIAL PRIMARY KEY,
         display_name VARCHAR(255) UNIQUE NOT NULL,
         session_id INT NOT NULL REFERENCES sessions(id),
@@ -152,7 +152,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE session_scoreboard (
+    CREATE TABLE IF NOT EXISTS session_scoreboard (
         id SERIAL PRIMARY KEY,
         session_id INT NOT NULL REFERENCES sessions(id),
         player_id INT NOT NULL REFERENCES session_players(id),
@@ -162,7 +162,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE player_answers (
+    CREATE TABLE IF NOT EXISTS player_answers (
         id SERIAL PRIMARY KEY,
         player_id INT NOT NULL REFERENCES session_players(id),
         session_id INT NOT NULL REFERENCES sessions(id),
@@ -174,7 +174,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE courses (
+    CREATE TABLE IF NOT EXISTS courses (
         id SERIAL PRIMARY KEY,
         course_name VARCHAR(255) UNIQUE NOT NULL,
         description TEXT,
@@ -182,14 +182,14 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE channels (
+    CREATE TABLE IF NOT EXISTS channels (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) UNIQUE NOT NULL,
         description TEXT,
         quizzes INT REFERENCES quizzes(id)
         )
     """,
-    """ CREATE TABLE creator_profiles (
+    """ CREATE TABLE IF NOT EXISTS creator_profiles (
         id SERIAL PRIMARY KEY,
         creator_id INT NOT NULL REFERENCES creators(id)
         )

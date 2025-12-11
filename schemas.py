@@ -1,3 +1,40 @@
+from datetime import date, datetime, time
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field
+
 # Add Pydantic schemas here that you'll use in your routes / endpoints
 # Pydantic schemas are used to validate data that you receive, or to make sure that whatever data
 # you send back to the client follows a certain structure
+
+class UserCreate(BaseModel):
+    user_name: str 
+    email: EmailStr 
+    password: str 
+    registration_date: datetime
+    user_status: int 
+    birth_date: date
+
+class UserResponse(BaseModel):
+    user_name: str = Field(max_lenght=50)
+    email: str
+    password: str = Field(min_lenght=8)
+    registration_date: datetime
+    user_status: int
+    birth_date: date
+
+class UserUpdate(BaseModel):
+    user_name: str 
+    email: EmailStr 
+    password: str 
+    registration_date: datetime
+    user_status: int 
+    birth_date: date
+
+class UserPatch(BaseModel):
+    user_name: Optional[str] = Field(None, max_lenght=50)
+    email: Optional[EmailStr] = None
+    password: Optional[str] = Field(None, min_lenght=8)
+    registration_date: Optional[datetime] = None
+    user_status: Optional[int] = None
+    birth_date: Optional[date] = None

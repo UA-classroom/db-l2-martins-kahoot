@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2 import errors, sql
 from psycopg2.extras import RealDictCursor
 
 """
@@ -68,6 +69,13 @@ def get_quiz_questions(con, quiz_id):
             quiz_questions = cursor.fetchall()
     return quiz_questions
 
+def get_question_answer_alternatives(con, question_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""SELECT * FROM answer_alternatives WHERE question_id id = %s""", (question_id,))
+            answer_alternatives = cursor.fetchall()
+            return answer_alternatives
+
 ### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
 # def get_item(con, item_id):
 #     with con:
@@ -104,12 +112,6 @@ def get_question(con, question_id):
             question = cursor.fetchone()
             return question
 
-def get_question_answer_alternatives(con, question_id):
-    with con:
-        with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM answer_alternatives WHERE question_id id = %s""", (question_id,))
-            answer_alternatives = cursor.fetchall()
-            return answer_alternatives
 
 def get_player_answer_for_question(con, player_id, question_id):
     with con:
@@ -231,6 +233,67 @@ def add_session_scoreboard(con, session_id, player_id, total_score, correct_answ
             scoreboard_id = cursor.fetchone()["id"]
             con.commit()
             return scoreboard_id
+        
+# -------- PUT FUNCTIONS -------------
+
+def put_update_user(con, user_id, user_name, email, password, registration_date, user_status, birth_date):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE users SET user_name = %s, email = %s, password = %s, registration_date = %s, user_status = %s, birth_date = %s
+                WHERE id = %s RETURNING *;""",
+                (user_name, email, password, registration_date, user_status, birth_date, user_id)
+            )
+            updated_user = cursor.fetchone()
+            con.commit()
+    return {
+                    "id": updated_user["id"],
+                    "user_name": updated_user.get("user_name"),
+                    "email": updated_user.get("email"),
+                    "registration_date": updated_user.get("registration_date"),
+                    "user_status": updated_user.get("user_status"),
+                    "birth_date": updated_user.get("birth_date")
+                }
+
+
+# ----------- DELETE FUNCTIONS ---------
+
+def delete_user(con, user_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "DELETE FROM users WHERE id = %s RETURNING id;", (user_id,))
+            deleted = cursor.fetchone()
+            con.commit()
+    return deleted
+
+#----- PATCH FUNCTIONS ------
+
+def patch_update_user(update_data: dict, table: str, pk: str = "id"):
+    set_clauses = []
+    params = []
+
+    for column_name, value in update_data.items():
+        set_clauses.append(sql.SQL("{} = %s").format(sql.Identifier(column_name)))
+        params.append(value)
+
+    if not set_clauses:
+        return None, None
+    
+    query = sql.SQL("""
+        UPDATE {table}
+        SET {set_clause}
+        WHERE {pk} = %s
+        RETURNING *
+    """).format(
+        table=sql.Identifier(table),
+        set_clause=sql.SQL(", ").join(set_clauses),
+        pk=sql.Identifier(pk),
+    )
+
+    params.append(None)
+
+    return query, params
 
 # STATISKA VÄRDEN KAN INSERTAS I PGADMIN
 # MER DYNAMISKA HÄR I METODERNA
