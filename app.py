@@ -42,7 +42,7 @@ but will have different HTTP-verbs.
 
 # IMPLEMENT THE ACTUAL ENDPOINTS! Feel free to remove
 
-# --- User endpoints ---
+# --- User Endpoints ---
 
 @app.get("/users")
 def list_users():
@@ -70,7 +70,7 @@ def add_user(user_input: sc.UserCreate):
     return user_id
 
 @app.put("/users/{user_id}", response_model=sc.UserResponse)
-def update_user(user_id: int, user_update: sc.UserUpdate):
+def put_update_user(user_id: int, user_update: sc.UserUpdate):
     con = get_connection()
     try:
         updated_user = db.put_update_user(con, user_update.user_name, user_update.email, user_update.password, user_update.registration_date, user_update.user_status, user_update.birth_date, user_id=user_id)
@@ -94,7 +94,7 @@ def delete_user(user_id: int):
     return deleted_user_id
 
 @app.patch("/users/{user_id}")
-def patch_user(user_id: int, user_patch: sc.UserPatch):
+def patch_update_user(user_id: int, user_patch: sc.UserPatch):
     update_data = user_patch.model_dump(exclude_unset=True)
 
     if not update_data:
@@ -152,11 +152,11 @@ def add_quiz(quiz_input: sc.QuizCreate):
     return quiz_id
 
 @app.put("/quizzes/{quiz_id}", response_model=sc.QuizResponse)
-def update_quiz(quiz_id: int, quiz_update: sc.QuizUpdate):
+def put_update_quiz(quiz_id: int, quiz_update: sc.QuizUpdate):
     con = get_connection()
     try:
         updated_quiz = db.put_update_quiz(con, quiz_update.quiz_creator_id, quiz_update.quiz_title, quiz_update.quiz_description, quiz_update.intro_image, quiz_update.created_at, quiz_update.updated_at, quiz_update.is_public, quiz_id=quiz_id)
-        if not update_quiz:
+        if not updated_quiz:
             raise HTTPException(status_code=404, detail="Quiz not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -172,3 +172,59 @@ def delete_quiz(quiz_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete quiz due to foreign key constraints")
     return deleted_quiz_id
+
+# --- Question Endpoints ---
+
+@app.get("/questions")
+def list_questions():
+    con = get_connection()
+    questions = db.get_questions(con)
+    return questions
+
+@app.get("/questions/{question_id}")
+def get_question(question_id: int):
+    con = get_connection()
+    question = db.get_question(con, question_id=question_id)
+    if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+    return question
+
+@app.get("/questions/{quiz_id}")
+def get_quiz_questions(con, quiz_id: int):
+    con = get_connection()
+    quiz_questions = db.get_quiz_questions(con, quiz_id=quiz_id)
+    if not quiz_questions:
+            raise HTTPException(status_code=404, detail="Quiz not found")
+    return quiz_questions
+
+@app.post("/questions")
+def add_question(question_input: sc.QuestionCreate):
+    con = get_connection()
+    try:
+        question_id = db.add_question(con, question_input.qiuz_id, question_input.question_text, question_input.question_order, question_input.time_limit, question_input.points, question_input.question_type, question_input.image)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return question_id
+
+@app.put("/questions/{question_id}", response_model=sc.QuestionResponse)
+def put_update_question(question_id: int, question_update: sc.QuestionUpdate):
+    con = get_connection()
+    try:
+        updated_question = db.put_update_question(con, question_update.qiuz_id, question_update.question_text, question_update.question_order, question_update.time_limit, question_update.points, question_update.question_type, question_update.image, question_id=question_id)
+        if not updated_question:
+            raise HTTPException(status_code=404, detail="Question not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_question
+
+@app.delete("/questions/{question_id}")
+def delete_question(question_id: int):
+    con = get_connection()
+    try:
+        deleted_question_id = db.delete_question(con, question_id=question_id)
+        if not deleted_question_id:
+            raise HTTPException(status_code=404, detail="Question not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete question due to foreign key constraints")
+    return deleted_question_id
+

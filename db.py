@@ -255,13 +255,13 @@ def put_update_user(con, user_id, user_name, email, password, registration_date,
                     "birth_date": updated_user.get("birth_date")
                 }
 
-def put_update_quiz(con, quiz_id, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_piblic):
+def put_update_quiz(con, quiz_id, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                """UPDATE quizzes SET quiz_creator_id = %s, quiz_title = %s, quiz_description = %s, intro_image %s, created_at =%s, updated_at = %s, is_piblic = %s
+                """UPDATE quizzes SET quiz_creator_id = %s, quiz_title = %s, quiz_description = %s, intro_image %s, created_at =%s, updated_at = %s, is_public = %s
                 WHERE id = %s RETURNING *,""",
-                (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_piblic),
+                (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public, quiz_id),
             )
             updated_quiz = cursor.fetchone()
             con.commit()
@@ -273,7 +273,28 @@ def put_update_quiz(con, quiz_id, quiz_creator_id, quiz_title, quiz_description,
         "intro_image": updated_quiz.get("intro_image"), 
         "created_at": updated_quiz.get("created_at"), 
         "updated_at": updated_quiz.get("updated_at"), 
-        "is_piblic": updated_quiz.get("is_publci")
+        "is_public": updated_quiz.get("is_public")
+    }
+
+def put_update_question(con, question_id, quiz_id, question_text, question_order, time_limit, points, question_type, image):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE question SET quiz_id = %s, question_text = %s, question_order = %s, time_limit = %s, points = %s, question_type = %s, image = %s
+                WHERE id = %s RETURNING *;""",
+                (quiz_id, question_text, question_order, time_limit, points, question_type, image, question_id),
+            )
+            updated_question = cursor.fetchone()
+            con.commit()
+    return {
+        "id": updated_question["id"],
+        "quiz_id": updated_question.get("quiz_id"),
+        "question_text": updated_question.get("question_text"),
+        "question_order": updated_question.get("question_order"),
+        "time_limit": updated_question.get("time_limit"),
+        "points": updated_question.get("points"),
+        "question_type": updated_question.get("question_type"),
+        "image": updated_question.get("image")
     }
 
 # ----------- DELETE FUNCTIONS ---------
@@ -291,10 +312,19 @@ def delete_quiz(con, quiz_id):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                "DELETE FROM quizzes WHERE id == %s RETURNINNG id;", (quiz_id,))
+                "DELETE FROM quizzes WHERE id = %s RETURNINNG id;", (quiz_id,))
             deleted_quiz_id = cursor.fetchone()
             con.commit()
     return deleted_quiz_id
+
+def delete_question(con, question_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "DELETE FROM questions WHERE id = %s RETURNING id;", (question_id,))
+            deleted_question_id = cursor.fetchone()
+            con.commit()
+    return deleted_question_id
 
 #----- PATCH FUNCTIONS ------
 

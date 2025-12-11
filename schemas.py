@@ -65,3 +65,30 @@ class QuizUpdate(BaseModel):
     created_at: datetime
     updated_at: datetime
     is_public: bool
+
+class QuestionCreate(BaseModel):
+    qiuz_id: int
+    question_text: str
+    question_order: int
+    time_limit: int
+    points: int
+    question_type: int
+    image: int
+
+class QuestionResponse(BaseModel):
+    qiuz_id: int
+    question_text: str
+    question_order: int
+    time_limit: int
+    points: int
+    question_type: int
+    image: int
+
+class QuestionUpdate(BaseModel):
+    qiuz_id: int
+    question_text: str
+    question_order: int
+    time_limit: int
+    points: int
+    question_type: int
+    image: int
