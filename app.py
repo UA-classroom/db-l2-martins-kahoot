@@ -228,3 +228,51 @@ def delete_question(question_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete question due to foreign key constraints")
     return deleted_question_id
 
+# --- Answer_alternatives Endpoints ---
+
+@app.get("/answer_alternatives/{question_id}")
+def get_question_answer_alternatives(question_id: int):
+    con = get_connection()
+    answer_alternatives = db.get_question_answer_alternatives(con, question_id=question_id)
+    if not answer_alternatives:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return answer_alternatives
+
+@app.get("/answer_alternatives/{answer_alternative_id}")
+def get_answer_alternative(answer_alternative_id: int):
+    con = get_connection()
+    answer_alternative = db.get_answer_alternative(con, answer_alternative_id=answer_alternative_id)
+    if not answer_alternative:
+            raise HTTPException(status_code=404, detail="Answer not found")
+    return answer_alternative
+
+@app.post("/answer_alternatives")
+def add_answer_alternative(answer_input: sc.AnswerAlternativeCreate):
+    con = get_connection()
+    try:
+        answer_alternative_id = db.add_answer_alternative(con, answer_input.question_id, answer_input.answer_text, answer_input.is_correct, answer_input.answer_icon, answer_input.answer_order)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return answer_alternative_id
+
+@app.put("/answer_alternatives/{answer_alternative_id}", response_model=sc.AnswerAlternativeResponse)
+def put_update_answer_alternative(answer_alternative_id: int, answer_update: sc.AnswerAlternativeUpdate):
+    con = get_connection()
+    try:
+        updated_answer = db.put_update_answer_alternative(con, answer_update.question_id, answer_update.answer_text, answer_update.is_correct, answer_update.answer_icon, answer_alternative_id=answer_alternative_id)
+        if not updated_answer:
+            raise HTTPException(status_code=404, detail="Answer not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_answer
+
+@app.delete("/answer_alternatives/{answer_alternative_id}")
+def delete_answer_alternative(answer_alternative_id: int):
+    con = get_connection()
+    try:
+        deleted_answer_id = db.delete_answer_alternative(con, answer_alternative_id=answer_alternative_id)
+        if not deleted_answer_id:
+            raise HTTPException(status_code=404, detail="Answer not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete answer due to foreign key constraints")
+    return deleted_answer_id

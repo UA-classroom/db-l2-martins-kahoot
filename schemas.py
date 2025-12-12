@@ -92,3 +92,24 @@ class QuestionUpdate(BaseModel):
     points: int
     question_type: int
     image: int
+
+class AnswerAlternativeCreate(BaseModel):
+    question_id: int
+    answer_text: str
+    is_correct: bool
+    answer_icon: int
+    answer_order: int
+
+class AnswerAlternativeResponse(BaseModel):
+    question_id: int
+    answer_text: str
+    is_correct: bool
+    answer_icon: int
+    answer_order: int
+
+class AnswerAlternativeUpdate(BaseModel):
+    question_id: int
+    answer_text: str
+    is_correct: bool
+    answer_icon: int
+    answer_order: int

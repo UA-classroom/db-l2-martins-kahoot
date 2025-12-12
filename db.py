@@ -111,6 +111,13 @@ def get_question(con, question_id):
             cursor.execute("""SELECT * FROM questions WHERE id = %s""", (question_id,))             
             question = cursor.fetchone()
             return question
+        
+def get_answer_alternative(con, answer_alternative_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("""SELECT * FROM answer_alternatives WHERE id = %s""", (answer_alternative_id,))             
+            answer_alternative = cursor.fetchone()
+            return answer_alternative
 
 
 def get_player_answer_for_question(con, player_id, question_id):
@@ -280,7 +287,7 @@ def put_update_question(con, question_id, quiz_id, question_text, question_order
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                """UPDATE question SET quiz_id = %s, question_text = %s, question_order = %s, time_limit = %s, points = %s, question_type = %s, image = %s
+                """UPDATE questions SET quiz_id = %s, question_text = %s, question_order = %s, time_limit = %s, points = %s, question_type = %s, image = %s
                 WHERE id = %s RETURNING *;""",
                 (quiz_id, question_text, question_order, time_limit, points, question_type, image, question_id),
             )
@@ -295,6 +302,25 @@ def put_update_question(con, question_id, quiz_id, question_text, question_order
         "points": updated_question.get("points"),
         "question_type": updated_question.get("question_type"),
         "image": updated_question.get("image")
+    }
+
+def put_update_answer_alternative(con, answer_alternative_id, question_id, answer_text, is_correct, answer_icon, answer_order):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE answer_alternatives SET question_id = %s, answer_text = %s, is_correct = %s, answer_icon = %s, answer_order = %s
+                WHERE id = %s RETURNING *;""",
+                (question_id, answer_text, is_correct, answer_icon, answer_order, answer_alternative_id),
+            )
+            updated_answer_alternative = cursor.fetchone()
+            con.commit()
+    return {
+        "id": updated_answer_alternative["id"], 
+        "question_id": updated_answer_alternative.get("question_id"), 
+        "answer_text": updated_answer_alternative.get("answer_text"), 
+        "is_correct": updated_answer_alternative.get("is_correct"), 
+        "answer_icon": updated_answer_alternative.get("answer_icon"), 
+        "answer_order": updated_answer_alternative.get("answer_order")
     }
 
 # ----------- DELETE FUNCTIONS ---------
@@ -325,6 +351,14 @@ def delete_question(con, question_id):
             deleted_question_id = cursor.fetchone()
             con.commit()
     return deleted_question_id
+
+def delete_answer_alternative(con, answer_alternative_id):
+    with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "DELETE FROM answer_alternatives WHERE id = %s RETURNING id;", (answer_alternative_id,))
+            deleted_answer_id = cursor.fetchone()
+            con.commit()
+    return deleted_answer_id
 
 #----- PATCH FUNCTIONS ------
 
