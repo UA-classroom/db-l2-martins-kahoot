@@ -167,3 +167,30 @@ class SessionPlayerUpdate(BaseModel):
     user_id: int
     joined_at: datetime
     player_points: int
+
+class PlayerAnswerCreate(BaseModel):
+    player_id: int
+    session_id: int
+    question_id: int
+    answer_id: int
+    response_time: int
+    points_earned: int
+    is_correct: bool
+
+class PlayerAnswerResponse(BaseModel):
+    player_id: int
+    session_id: int
+    question_id: int
+    answer_id: int
+    response_time: int
+    points_earned: int
+    is_correct: bool
+
+class PlayerAnswerUpdate(BaseModel):
+    player_id: int
+    session_id: int
+    question_id: int
+    answer_id: int
+    response_time: int
+    points_earned: int
+    is_correct: bool

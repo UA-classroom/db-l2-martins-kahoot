@@ -378,3 +378,58 @@ def delete_session_player(session_player_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete player due to foreign key constraints")
     return deleted_player_id
+
+# --- Player answers Endpoints --- 
+
+@app.get("/player_answers")
+def list_all_player_answers():
+    con = get_connection()
+    all_player_answers = db.get_all_player_answers(con)
+    return all_player_answers
+
+@app.get("/player_answers/{session_player_id}")
+def list_answers_by_player(session_player_id: int):
+    con = get_connection()
+    player_answers = db.get_answers_by_player(con, session_player_id=session_player_id)
+    if not player_answers:
+            raise HTTPException(status_code=404, detail="Session player not found")
+    return player_answers
+
+@app.get("/player_answers/{session_player_id}/{question_id}")
+def get_player_answer_for_question(session_player_id: int, question_id: int):
+    con = get_connection()
+    player_answer = db.get_player_answer_for_question(con, player_id=session_player_id, question_id=question_id)
+    if not player_answer:
+            raise HTTPException(status_code=404, detail="Player answer not found")
+    return player_answer
+
+@app.post("/player_answers")
+def add_player_answer(answer_input: sc.PlayerAnswerCreate):
+    con = get_connection()
+    try:
+        answer_id = db.add_player_answer(con, answer_input.player_id, answer_input.session_id, answer_input.question_id, answer_input.answer_id, answer_input.response_time, answer_input.points_earned, answer_input.is_correct)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return answer_id
+
+@app.put("/player_answers/{player_answer_id}", response_model=sc.PlayerAnswerResponse)
+def put_update_player_answer(player_answer_id: int, answer_update: sc.PlayerAnswerUpdate):
+    con = get_connection()
+    try:
+        updated_answer = db.put_update_player_answer(con, answer_update.player_id, answer_update.session_id, answer_update.question_id, answer_update.answer_id, answer_update.response_time, answer_update.points_earned, answer_update.is_correct, player_answer_id=player_answer_id)
+        if not updated_answer:
+            raise HTTPException(status_code=404, detail="Answer not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_answer
+
+@app.delete("/player_answers/{player_answer_id}")
+def delete_player_answer(player_answer_id: int):
+    con = get_connection()
+    try:
+        deleted_answer_id = db.delete_player_answer(con, player_answer_id=player_answer_id)
+        if not deleted_answer_id:
+            raise HTTPException(status_code=404, detail="Answer not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete answer due to foreign key constraints")
+    return deleted_answer_id
