@@ -323,3 +323,58 @@ def delete_session(session_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete session due to foreign key constraints")
     return deleted_session_id
+
+# --- Session players Endpoints ---
+
+@app.get("/session_players")
+def list_all_session_players():
+    con = get_connection()
+    all_session_players = db.get_all_session_players(con)
+    return all_session_players
+
+@app.get("/session_players/{session_id}")
+def get_players_for_session(con, session_id: int):
+    con = get_connection()
+    players = db.get_players_for_session(con, session_id=session_id)
+    if not players:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return players
+
+@app.get("/session_players/{session_player_id}")
+def get_session_player(session_player_id: int):
+    con = get_connection()
+    player = db.get_session_player(con, session_player_id=session_player_id)
+    if not player:
+        raise HTTPException(status_code=404, detail="Session player not found")
+    return player
+
+@app.post("/session_players")
+def add_session_player(player_input: sc.SessionPlayerCreate):
+    con = get_connection()
+    try:
+        player_id = db.add_session_player(con, player_input.session_id, player_input.display_name, player_input.user_id, player_input.joined_at, player_input.player_points)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return player_id
+
+@app.put("/session_player/{session_player_id}", response_model=sc.SessionPlayerResponse)
+def put_update_session_player(session_player_id: int, player_update: sc.SessionPlayerUpdate):
+    con = get_connection()
+    try:
+        updated_player = db.put_update_session_player(con, player_update.session_id, player_update.display_name, player_update.user_id, player_update.joined_at, player_update.player_points, session_player_id=session_player_id)
+        if not updated_player:
+            raise HTTPException(status_code=404, detail="Session player not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_player
+
+@app.delete("/session_players/{session_player_id}")
+def delete_session_player(session_player_id: int):
+    con = get_connection()
+    try:
+        deleted_player_id = db.delete_session_player(con, session_player_id=session_player_id)
+        if not deleted_player_id:
+            raise HTTPException(status_code=404, detail="Session player not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete player due to foreign key constraints")
+    return deleted_player_id

@@ -146,3 +146,24 @@ class SessionUpdate(BaseModel):
     ended_at: datetime
     current_question_id: int
     session_code: int
+
+class SessionPlayerCreate(BaseModel):
+    session_id: int
+    display_name: str
+    user_id: int
+    joined_at: datetime
+    player_points: int
+
+class SessionPlayerResponse(BaseModel):
+    session_id: int
+    display_name: str
+    user_id: int
+    joined_at: datetime
+    player_points: int
+
+class SessionPlayerUpdate(BaseModel):
+    session_id: int
+    display_name: str
+    user_id: int
+    joined_at: datetime
+    player_points: int

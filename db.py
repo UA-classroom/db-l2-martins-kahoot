@@ -55,7 +55,7 @@ def get_all_session_players(con):
             session_players = cursor.fetchall()
     return session_players
 
-def get_session_players(con, session_id):
+def get_players_for_session(con, session_id):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("""SELECT * FROM session_players WHERE session_id = %s""", (session_id,))
@@ -242,6 +242,18 @@ def add_session(con, session_name, host_user_id, active_quiz, qr_code_id, sessio
             session_id = cursor.fetchone()["id"]
             con.commit()
             return session_id
+        
+def add_session_player(con, session_id, display_name, user_id, joined_at, player_points):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """INSERT INTO session_players (session_id, display_name, user_id, joined_at, player_points)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id;""",
+                (session_id, display_name, user_id, joined_at, player_points)
+            )
+            player_id = cursor.fetchone()["id"]
+            con.commit()
+            return player_id
 
 def add_session_scoreboard(con, session_id, player_id, total_score, correct_answers, rank):
     with con:
@@ -359,6 +371,25 @@ def put_update_session(con, session_id, session_name, host_user_id, active_quiz,
         "session_code": updated_session.get("session_code")
     }
 
+def put_update_session_player(con, session_player_id, session_id, display_name, user_id, joined_at, player_points):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE session_players SET session_id = %s, display_name = %s, user_id = %s, joined_at = %s, player_points = %s
+                WHERE id = %s RETURNING *;""",
+                (session_id, display_name, user_id, joined_at, player_points),
+            )
+            updated_player = cursor.fetchone()
+            con.commit()
+    return {
+        "id": updated_player["id"],
+        "session_id": updated_player.get("sessoin_id"), 
+        "display_name": updated_player.get("display_name"), 
+        "user_id": updated_player.get("user_id"), 
+        "joined_at": updated_player.get("joined_at"), 
+        "player_points": updated_player.get("player_points")
+    }
+
 # ----------- DELETE FUNCTIONS ---------
 
 def delete_user(con, user_id):
@@ -405,6 +436,15 @@ def delete_session(con, session_id):
                 deleted_session_id = cursor.fetchone()
                 con.commit()
     return deleted_session_id
+
+def delete_session_player(con, session_player_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "DELETE FROM session_players WHERE id = %s RETURNING id;", (session_player_id,))
+            deleted_player_id = cursor.fetchone()
+            con.commit()
+    return deleted_player_id
 
 #----- PATCH FUNCTIONS ------
 
