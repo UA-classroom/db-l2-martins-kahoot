@@ -113,3 +113,36 @@ class AnswerAlternativeUpdate(BaseModel):
     is_correct: bool
     answer_icon: int
     answer_order: int
+
+class SessionCreate(BaseModel):
+    session_name: str
+    host_user_id: int
+    active_quiz: int
+    qr_code_id: int
+    session_status: int
+    started_at: datetime
+    ended_at: datetime
+    current_question_id: int
+    session_code: int
+
+class SessionResponse(BaseModel):
+    session_name: str
+    host_user_id: int
+    active_quiz: int
+    qr_code_id: int
+    session_status: int
+    started_at: datetime
+    ended_at: datetime
+    current_question_id: int
+    session_code: int
+
+class SessionUpdate(BaseModel):
+    session_name: str
+    host_user_id: int
+    active_quiz: int
+    qr_code_id: int
+    session_status: int
+    started_at: datetime
+    ended_at: datetime
+    current_question_id: int
+    session_code: int

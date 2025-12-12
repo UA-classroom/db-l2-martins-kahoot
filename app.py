@@ -173,7 +173,7 @@ def delete_quiz(quiz_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete quiz due to foreign key constraints")
     return deleted_quiz_id
 
-# --- Question Endpoints ---
+# --- Questions Endpoints ---
 
 @app.get("/questions")
 def list_questions():
@@ -276,3 +276,50 @@ def delete_answer_alternative(answer_alternative_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete answer due to foreign key constraints")
     return deleted_answer_id
+
+# --- Sessions Endpoints ---
+
+@app.get("/sessions")
+def list_sessions():
+    con = get_connection()
+    sessions = db.get_sessions(con)
+    return sessions
+
+@app.get("/sessions/{session_id}")
+def get_session(session_id: int):
+    con = get_connection()
+    session = db.get_session(con, session_id=session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+@app.post("/sessions")
+def add_session(session_input: sc.SessionCreate):
+    con = get_connection()
+    try:
+        session_id = db.add_session(con, session_input.session_name, session_input.host_user_id, session_input.active_quiz, session_input.qr_code_id, session_input.session_status, session_input.started_at, session_input.current_question_id, session_input.session_code)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return session_id
+
+@app.put("/sessions/{session_id}", response_model=sc.SessionResponse)
+def put_update_session(session_id: int, session_update: sc.SessionUpdate):
+    con = get_connection()
+    try:
+        updated_session = db.put_update_session(con, session_update.session_name, session_update.host_user_id, session_update.active_quiz, session_update.qr_code_id, session_update.session_status, session_update.started_at, session_update.current_question_id, session_update.session_code, session_id=session_id)
+        if not updated_session:
+            raise HTTPException(status_code=404, detail="Session not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_session
+
+@app.delete("/sessions/{session_id}")
+def delete_session(session_id: int):
+    con = get_connection()
+    try:
+        deleted_session_id = db.delete_session(con, session_id=session_id)
+        if not deleted_session_id:
+            raise HTTPException(status_code=404, detail="Session not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete session due to foreign key constraints")
+    return deleted_session_id

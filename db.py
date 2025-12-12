@@ -41,6 +41,13 @@ def get_quizzes(con):
             quizzes = cursor.fetchall()
     return quizzes
 
+def get_sessions(con):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM sessions;")
+            sessions = cursor.fetchall()
+    return sessions
+
 def get_all_session_players(con):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -98,6 +105,13 @@ def get_quiz(con, quiz_id):
             quiz = cursor.fetchone()
             return quiz
         
+def get_session(con, session_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM sessions WHERE id = %s", (session_id))
+            session = cursor.fetchone()
+    return session
+
 def get_session_player(con, session_player_id):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -323,6 +337,28 @@ def put_update_answer_alternative(con, answer_alternative_id, question_id, answe
         "answer_order": updated_answer_alternative.get("answer_order")
     }
 
+def put_update_session(con, session_id, session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE sessions SET session_name = %s, host_user_id = %s, active_quiz = %s, qr_code_id = %s, session_status = %s, started_at = %s, current_question_id = %s, session_code = %s
+                WHERE id = %s RETURNING *;""",
+                (session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code, session_id),
+            )
+            updated_session = cursor.fetchone()
+            con.commit()
+    return {
+        "id": updated_session["id"],
+        "session_name": updated_session.get("session_name"), 
+        "host_user_id": updated_session.get("host_user_id"), 
+        "active_quiz": updated_session.get("active_quiz"), 
+        "qr_code_id": updated_session.get("qr_code_id"), 
+        "session_status": updated_session.get("session_status"),
+        "started_at": updated_session.get("started_at"), 
+        "current_question_id": updated_session.get("current_question_id"), 
+        "session_code": updated_session.get("session_code")
+    }
+
 # ----------- DELETE FUNCTIONS ---------
 
 def delete_user(con, user_id):
@@ -353,12 +389,22 @@ def delete_question(con, question_id):
     return deleted_question_id
 
 def delete_answer_alternative(con, answer_alternative_id):
-    with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(
-                "DELETE FROM answer_alternatives WHERE id = %s RETURNING id;", (answer_alternative_id,))
-            deleted_answer_id = cursor.fetchone()
-            con.commit()
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    "DELETE FROM answer_alternatives WHERE id = %s RETURNING id;", (answer_alternative_id,))
+                deleted_answer_id = cursor.fetchone()
+                con.commit()
     return deleted_answer_id
+
+def delete_session(con, session_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(
+                    "DELETE FROM sessions WHERE id = %s RETURNING id;", (session_id,))
+                deleted_session_id = cursor.fetchone()
+                con.commit()
+    return deleted_session_id
 
 #----- PATCH FUNCTIONS ------
 
