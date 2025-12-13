@@ -96,6 +96,13 @@ def get_answers_by_player(con, session_player_id):
             cursor.execute("""SELECT * FROM player_answer WHERE question_id id = %s""", (session_player_id,))
             player_answers = cursor.fetchall()
             return player_answers
+        
+def get_session_scoreboards(con):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM session_scoreboards;")
+            scoreboards = cursor.fetchall()
+    return scoreboards
 
 ### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
 # def get_item(con, item_id):
@@ -408,7 +415,7 @@ def put_update_player_answer(con, player_answer_id, player_id, session_id, quest
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                """ UPDATE player_answers SET player_id = %s, session_id = %s, question_id = %s, answer_id = %s, response_time = %s, points_earned = %s, is_correct = %s
+                """UPDATE player_answers SET player_id = %s, session_id = %s, question_id = %s, answer_id = %s, response_time = %s, points_earned = %s, is_correct = %s
                 WHERE id = %s RETURNING *;"""
                 (player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct, player_answer_id),
             )
@@ -423,6 +430,25 @@ def put_update_player_answer(con, player_answer_id, player_id, session_id, quest
         "response_time": updated_answer.get("response_time"), 
         "points_earned": updated_answer.get("points_earned"), 
         "is_correct": updated_answer.get("is_correct")
+    }
+
+def put_update_session_scoreboard(con, session_scoreboard_id, session_id, player_id, total_score, correct_answers, rank):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                """UPDATE session_scoreboards SET session_id = %s, player_id = %s, total_score = %s, correct_answers = %s, rank = %s
+                WHERE id = %s RETURNING *;"""
+                (session_id, player_id, total_score, correct_answers, rank, session_scoreboard_id)
+            )
+            updated_scoreboard = cursor.fetchone()
+            con.commit()
+    return {
+        "id": updated_scoreboard["id"],
+        "session_id": updated_scoreboard.get("session_id"), 
+        "player_id": updated_scoreboard.get("player_id"), 
+        "total_score": updated_scoreboard.get("total_score"), 
+        "correct_answers": updated_scoreboard.get("correct_answers"), 
+        "rank": updated_scoreboard.get("rank")
     }
 
 # ----------- DELETE FUNCTIONS ---------
@@ -489,6 +515,15 @@ def delete_player_answer(con, player_answer_id):
             deleted_answer_id = cursor.fetchone()
             con.commit()
     return deleted_answer_id
+
+def delete_session_scoreboard(con, session_scoreboard_id):
+    with con:
+        with con.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(
+                "DELETE FROM session_scoreboards WHERE id = %s RETURNING id;", (session_scoreboard_id,))
+            deleted_scoreboard_id = cursor.fetchone()
+            con.commit()
+    return deleted_scoreboard_id
 
 #----- PATCH FUNCTIONS ------
 

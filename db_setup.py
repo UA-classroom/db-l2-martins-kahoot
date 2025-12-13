@@ -152,7 +152,7 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE IF NOT EXISTS session_scoreboard (
+    CREATE TABLE IF NOT EXISTS session_scoreboards (
         id SERIAL PRIMARY KEY,
         session_id INT NOT NULL REFERENCES sessions(id),
         player_id INT NOT NULL REFERENCES session_players(id),

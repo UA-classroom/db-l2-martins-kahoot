@@ -194,3 +194,24 @@ class PlayerAnswerUpdate(BaseModel):
     response_time: int
     points_earned: int
     is_correct: bool
+
+class ScoreboardCreate(BaseModel):
+    session_id: int 
+    player_id: int 
+    total_score: int 
+    correct_answers: bool 
+    rank: int
+
+class ScoreboardResponse(BaseModel):
+    session_id: int 
+    player_id: int 
+    total_score: int 
+    correct_answers: bool 
+    rank: int
+
+class ScoreboardUpdate(BaseModel):
+    session_id: int 
+    player_id: int 
+    total_score: int 
+    correct_answers: bool 
+    rank: int

@@ -433,3 +433,50 @@ def delete_player_answer(player_answer_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete answer due to foreign key constraints")
     return deleted_answer_id
+
+# --- Session scoreboards Endpoints ---
+
+@app.get("/session_scoreboards")
+def list_session_scoreboards():
+    con = get_connection()
+    scoreboards = db.get_session_scoreboards(con)
+    return scoreboards
+
+@app.get("/session_scoreboards/{session_id}")
+def get_scoreboard_for_session(session_id: int):
+    con = get_connection()
+    scoreboard = db.get_scoreboard_for_session(con, session_id=session_id)
+    if not scoreboard:
+        raise HTTPException(status_code=404, detail="Scoreboard not found")
+    return scoreboard
+
+@app.post("/session_scoreboards")
+def add_session_scoreboard(scoreboard_input: sc.ScoreboardCreate):
+    con = get_connection()
+    try:
+        scoreboard_id = db.add_session_scoreboard(con, scoreboard_input.session_id, scoreboard_input.player_id, scoreboard_input.total_score, scoreboard_input.correct_answers, scoreboard_input.rank)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return scoreboard_id
+
+@app.put("/session_scoreboards/{session_scoreboard_id}", response_model=sc.ScoreboardResponse)
+def put_update_session_scoreboard(session_scoreboard_id: int, scoreboard_update: sc.ScoreboardUpdate):
+    con = get_connection()
+    try:
+        updated_scoreboard = db.put_update_session_scoreboard(con, scoreboard_update.session_id, scoreboard_update.player_id, scoreboard_update.total_score, scoreboard_update.correct_answers, scoreboard_update.rank, session_scoreboard_id=session_scoreboard_id)
+        if not updated_scoreboard:
+            raise HTTPException(status_code=404, detail="Scoreboard not found")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return updated_scoreboard
+
+@app.delete("/session_scoreboards/{session_scoreboard_id}")
+def delete_session_scoreboard(session_scoreboard_id: int):
+    con = get_connection()
+    try:
+        deleted_scoreboard_id = db.delete_session_scoreboard(con, session_scoreboard_id=session_scoreboard_id)
+        if not deleted_scoreboard_id:
+            raise HTTPException(status_code=404, detail="Scoreboard not found")
+    except psycopg2.errors.ForeignKeyViolation:
+        raise HTTPException(status_code=400, detail="Cannot delete scoreboard due to foreign key constraints")
+    return deleted_scoreboard_id
