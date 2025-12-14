@@ -527,7 +527,7 @@ def delete_session_scoreboard(con, session_scoreboard_id):
 
 #----- PATCH FUNCTIONS ------
 
-def patch_update_user(update_data: dict, table: str, pk: str = "id"):
+def patch_update_table(update_data: dict, table: str, pk: str = "id"):
     set_clauses = []
     params = []
 

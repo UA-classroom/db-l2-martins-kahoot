@@ -66,6 +66,15 @@ class QuizUpdate(BaseModel):
     updated_at: datetime
     is_public: bool
 
+class QuizPatch(BaseModel):
+    quiz_creator_id: Optional[int] = None
+    quiz_title: Optional[str] = Field(None, max_lenght=50)
+    quiz_description: Optional[str] = Field(None, max_lenght=50)
+    intro_image: Optional[int] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    is_public: Optional[bool] = None
+
 class QuestionCreate(BaseModel):
     qiuz_id: int
     question_text: str
@@ -92,6 +101,15 @@ class QuestionUpdate(BaseModel):
     points: int
     question_type: int
     image: int
+
+class QuestionPatch(BaseModel):
+    qiuz_id: Optional[int] = None
+    question_text: Optional[str] = Field(None, max_lenght=255)
+    question_order: Optional[int] = None
+    time_limit: Optional[int] = None
+    points: Optional[int] = None
+    question_type: Optional[int] = None
+    image: Optional[int] = None
 
 class AnswerAlternativeCreate(BaseModel):
     question_id: int

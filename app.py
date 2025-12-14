@@ -100,7 +100,7 @@ def patch_update_user(user_id: int, user_patch: sc.UserPatch):
     if not update_data:
         raise HTTPException(status_code=400, detail="No field to update")
     
-    query, params = db.patch_update_user(update_data=update_data, table="users", pk="id")
+    query, params = db.patch_update_table(update_data=update_data, table="users", pk="id")
     params[-1] = user_id
     con = get_connection()
 
@@ -173,6 +173,41 @@ def delete_quiz(quiz_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete quiz due to foreign key constraints")
     return deleted_quiz_id
 
+@app.patch("/quizzes/{quiz_id}")
+def patch_update_quiz(quiz_id: int, quiz_patch: sc.QuizPatch):
+    update_data = quiz_patch.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No field to update")
+    
+    query, params = db.patch_update_table(update_data=update_data, table="quizzes", pk="id")
+    params[-1] = quiz_id
+    con = get_connection()
+
+    try:
+        with con:
+            with con.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, tuple(params))
+                updated_quiz = cursor.fetchone()
+
+                if not updated_quiz:
+                    raise HTTPException(status_code=404, detail="Quiz not found")
+                
+                return {
+                    "id": updated_quiz["id"],
+                    "quiz_creator_id": updated_quiz.get("quiz_creator_id"),
+                    "quiz_title": updated_quiz.get("quiz_title"),
+                    "quiz_description": updated_quiz.get("quiz_description"),
+                    "intro_image": updated_quiz.get("intro_image"),
+                    "created_at": updated_quiz.get("created_at"),
+                    "updated_at": updated_quiz.get("updated_at"),
+                    "is_public": updated_quiz.get("is_public")
+                }
+    except errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Unique constraint violation")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 # --- Questions Endpoints ---
 
 @app.get("/questions")
@@ -227,6 +262,41 @@ def delete_question(question_id: int):
     except psycopg2.errors.ForeignKeyViolation:
         raise HTTPException(status_code=400, detail="Cannot delete question due to foreign key constraints")
     return deleted_question_id
+
+@app.patch("/questions/{question_id}")
+def patch_update_question(question_id: int, question_patch: sc.QuestionPatch):
+    update_data = question_patch.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No field to update")
+    
+    query, params = db.patch_update_table(update_data=update_data, table="questions", pk="id")
+    params[-1] = question_id
+    con = get_connection()
+
+    try:
+        with con:
+            with con.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, tuple(params))
+                updated_question = cursor.fetchone()
+
+                if not updated_question:
+                    raise HTTPException(status_code=404, detail="Question not found")
+                
+                return {
+                    "id": updated_question["id"],
+                    "quiz_id": updated_question.get("quiz_id"),
+                    "question_text": updated_question.get("question_text"),
+                    "question_order": updated_question.get("question_order"),
+                    "time_limit": updated_question.get("time_limit"),
+                    "points": updated_question.get("points"),
+                    "question_type": updated_question.get("question_type"),
+                    "image": updated_question.get("image")
+                }
+    except errors.UniqueViolation:
+        raise HTTPException(status_code=409, detail="Unique constraint violation")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # --- Answer_alternatives Endpoints ---
 
