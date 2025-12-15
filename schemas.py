@@ -32,12 +32,12 @@ class UserUpdate(BaseModel):
     birth_date: date
 
 class UserPatch(BaseModel):
-    user_name: Optional[str] = Field(None, min_length=3, max_length=50)
-    email: Optional[EmailStr] = None
-    password: Optional[str] = Field(None, min_length=8, max_length=50)
-    registration_date: Optional[datetime] = None
-    user_status: Optional[int] = None
-    birth_date: Optional[date] = None
+    user_name: str | None = Field(None, min_length=3, max_length=50)
+    email: EmailStr | None = None
+    password: str | None = Field(None, min_length=8, max_length=50)
+    registration_date: datetime | None = None
+    user_status: int | None = None
+    birth_date: date | None = None
 
 class QuizCreate(BaseModel):
     quiz_creator_id: int
@@ -67,13 +67,13 @@ class QuizUpdate(BaseModel):
     is_public: bool
 
 class QuizPatch(BaseModel):
-    quiz_creator_id: Optional[int] = None
-    quiz_title: Optional[str] = Field(None, min_length=3, max_length=255)
-    quiz_description: Optional[str] = Field(None, max_length=1000)
-    intro_image: Optional[int] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    is_public: Optional[bool] = None
+    quiz_creator_id: int | None = None
+    quiz_title: str | None = Field(None, min_length=3, max_length=255)
+    quiz_description: str | None = Field(None, max_length=1000)
+    intro_image: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    is_public: bool | None = None
 
 class QuestionCreate(BaseModel):
     qiuz_id: int
@@ -103,13 +103,13 @@ class QuestionUpdate(BaseModel):
     image: int
 
 class QuestionPatch(BaseModel):
-    qiuz_id: Optional[int] = None
-    question_text: Optional[str] = Field(None, min_length=3, max_length=500)
-    question_order: Optional[int] = None
-    time_limit: Optional[int] = None
-    points: Optional[int] = None
-    question_type: Optional[int] = None
-    image: Optional[int] = None
+    qiuz_id: int | None = None
+    question_text: str | None = Field(None, min_length=3, max_length=500)
+    question_order: int | None = None
+    time_limit: int | None = None
+    points: int | None = None
+    question_type: int | None = None
+    image: int | None = None
 
 class AnswerAlternativeCreate(BaseModel):
     question_id: int
@@ -168,7 +168,7 @@ class SessionUpdate(BaseModel):
 class SessionPlayerCreate(BaseModel):
     session_id: int
     display_name: str = Field(min_length=3, max_length=255)
-    user_id: int
+    user_id: int | None = None
     joined_at: datetime
     player_points: int
 
@@ -182,7 +182,7 @@ class SessionPlayerResponse(BaseModel):
 class SessionPlayerUpdate(BaseModel):
     session_id: int
     display_name: str = Field(min_length=3, max_length=255)
-    user_id: int
+    user_id: int | None = None
     joined_at: datetime
     player_points: int
 

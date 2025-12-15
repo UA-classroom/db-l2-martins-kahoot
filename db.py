@@ -28,41 +28,48 @@ start with a connection parameter.
 #     return items
 
 def get_users(con, limit: int):
+    """Returns list of users from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM users LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM users LIMIT %s", (limit,))
             users = cursor.fetchall()
     return users
 
 def get_quizzes(con, limit: int):
+    """Returns list of quizzes from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM quizzes LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM quizzes LIMIT %s", (limit,))
             quizzes = cursor.fetchall()
     return quizzes
 
 def get_sessions(con, limit: int):
+    
+    """Returns list of sessions from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM sessions LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM sessions LIMIT %s", (limit,))
             sessions = cursor.fetchall()
     return sessions
 
 def get_all_session_players(con, limit: int):
+    """Returns list of all session players from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM session_players LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM session_players LIMIT %s", (limit,))
             session_players = cursor.fetchall()
     return session_players
 
 def get_players_for_session(con, session_id, limit: int):
+    """Returns list of players in a specific session, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM session_players WHERE session_id = %s LIMIT = %s""", (session_id, limit,))
+            cursor.execute("SELECT * FROM session_players WHERE session_id = %s LIMIT = %s", (session_id, limit),)
             session_players = cursor.fetchall()
     return session_players
 
 def get_questions(con, limit: int):
+    """Returns list of questions from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("SELECT * FROM questions LIMIT %s;", (limit,))
@@ -70,37 +77,42 @@ def get_questions(con, limit: int):
     return questions
 
 def get_quiz_questions(con, quiz_id, limit: int):
+    """Returns list of questions for a specific quiz, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM questions WHERE quiz_id = %s LIMIT""", (quiz_id, limit,))
+            cursor.execute("SELECT * FROM questions WHERE quiz_id = %s LIMIT", (quiz_id, limit),)
             quiz_questions = cursor.fetchall()
     return quiz_questions
 
 def get_question_answer_alternatives(con, question_id, limit: int):
+    """Returns list of answer alternatives for a specific question, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM answer_alternatives WHERE question_id = %s LIMIT %s""", (question_id, limit,))
+            cursor.execute("SELECT * FROM answer_alternatives WHERE question_id = %s LIMIT %s", (question_id, limit),)
             answer_alternatives = cursor.fetchall()
             return answer_alternatives
         
 def get_all_player_answers(con, limit: int):
+    """Returns list of player answers from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM player_answers LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM player_answers LIMIT %s", (limit,))
             all_player_answers = cursor.fetchall()
     return all_player_answers
 
 def get_answers_by_player(con, session_player_id, limit: int):
+    """Returns list of answes by a specific player from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM player_answer WHERE question_id id = %s LIMIT %s""", (session_player_id, limit,))
+            cursor.execute("SELECT * FROM player_answer WHERE question_id id = %s LIMIT %s", (session_player_id, limit),)
             player_answers = cursor.fetchall()
             return player_answers
         
 def get_session_scoreboards(con, limit: int):
+    """Returns list of session scoreboards from the database, based on the limit-parameter"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM session_scoreboards LIMIT %s;", (limit,))
+            cursor.execute("SELECT * FROM session_scoreboards LIMIT %s", (limit,))
             scoreboards = cursor.fetchall()
     return scoreboards
 
@@ -113,49 +125,56 @@ def get_session_scoreboards(con, limit: int):
 #             return item
 
 def get_user(con, user_id):
+    """Returns the user with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM users WHERE id = %s""", (user_id,))             
+            cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))             
             user = cursor.fetchone()
             return user
         
 def get_quiz(con, quiz_id):
+    """Returns the quiz with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM quizzes WHERE id = %s""", (quiz_id,))             
+            cursor.execute("SELECT * FROM quizzes WHERE id = %s", (quiz_id,))             
             quiz = cursor.fetchone()
             return quiz
         
 def get_session(con, session_id):
+    """Returns the session with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM sessions WHERE id = %s", (session_id))
+            cursor.execute("SELECT * FROM sessions WHERE id = %s", (session_id,))
             session = cursor.fetchone()
     return session
 
 def get_session_player(con, session_player_id):
+    """Returns the session player with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM session_players WHERE id = %s""", (session_player_id,))             
+            cursor.execute("SELECT * FROM session_players WHERE id = %s", (session_player_id,))             
             session_player = cursor.fetchone()
             return session_player
 
 def get_question(con, question_id):
+    """Returns the question with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM questions WHERE id = %s""", (question_id,))             
+            cursor.execute("SELECT * FROM questions WHERE id = %s", (question_id,))             
             question = cursor.fetchone()
             return question
         
 def get_answer_alternative(con, answer_alternative_id):
+    """Returns the answer alternative with the given id from the database"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM answer_alternatives WHERE id = %s""", (answer_alternative_id,))             
+            cursor.execute("SELECT * FROM answer_alternatives WHERE id = %s", (answer_alternative_id,))             
             answer_alternative = cursor.fetchone()
             return answer_alternative
 
 
 def get_player_answer_for_question(con, player_id, question_id):
+    """Returns the answer by a specfic player on a specific question"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -166,9 +185,10 @@ def get_player_answer_for_question(con, player_id, question_id):
             return player_answer
 
 def get_scoreboard_for_session(con, session_id):
+    """Returns the scoreboard for a specific session"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM session_scoreboard WHERE session_id = %s""", (session_id,))
+            cursor.execute("SELECT * FROM session_scoreboard WHERE session_id = %s", (session_id,))
             scoreboard = cursor.fetchone()
             return scoreboard
         
@@ -193,6 +213,7 @@ def get_item(con, table, item_id): # dålig säkerhet, måste fixas eller skitas
 #     return item_id
 
 def add_user(con, user_name, email, password, registration_date, user_status, birth_date):
+    """Adds a new user to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -205,6 +226,7 @@ def add_user(con, user_name, email, password, registration_date, user_status, bi
     return user_id
 
 def add_quiz(con, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public):
+    """Adds a new quiz to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -217,6 +239,7 @@ def add_quiz(con, quiz_creator_id, quiz_title, quiz_description, intro_image, cr
     return quiz_id
 
 def add_question(con, quiz_id, question_text, question_order, time_limit, points, question_type, image):
+    """Adds a new question to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -229,6 +252,7 @@ def add_question(con, quiz_id, question_text, question_order, time_limit, points
     return question_id
 
 def add_answer_alternative(con, question_id, answer_text, is_correct, answer_icon, answer_order):
+    """Adds a new answer alternative to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -241,6 +265,7 @@ def add_answer_alternative(con, question_id, answer_text, is_correct, answer_ico
     return answer_alternative_id
 
 def add_player_answer(con, player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct):
+    """Adds a new player answer to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -253,6 +278,7 @@ def add_player_answer(con, player_id, session_id, question_id, answer_id, respon
             return player_answer
 
 def add_session(con, session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code):
+    """Adds a new session to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -265,18 +291,20 @@ def add_session(con, session_name, host_user_id, active_quiz, qr_code_id, sessio
             return session_id
         
 def add_session_player(con, session_id, display_name, user_id, joined_at, player_points):
+    """Adds a new session player to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """INSERT INTO session_players (session_id, display_name, user_id, joined_at, player_points)
                 VALUES (%s, %s, %s, %s, %s) RETURNING id;""",
-                (session_id, display_name, user_id, joined_at, player_points)
+                (session_id, display_name, user_id, joined_at, player_points),
             )
             player_id = cursor.fetchone()["id"]
             con.commit()
             return player_id
 
 def add_session_scoreboard(con, session_id, player_id, total_score, correct_answers, rank):
+    """Adds a new scoreboard to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -291,6 +319,7 @@ def add_session_scoreboard(con, session_id, player_id, total_score, correct_answ
 # -------- PUT FUNCTIONS -------------
 
 def put_update_user(con, user_id, user_name, email, password, registration_date, user_status, birth_date):
+    """Updates a specfic user and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -310,11 +339,12 @@ def put_update_user(con, user_id, user_name, email, password, registration_date,
                 }
 
 def put_update_quiz(con, quiz_id, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public):
+    """Updates a specfic quiz and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """UPDATE quizzes SET quiz_creator_id = %s, quiz_title = %s, quiz_description = %s, intro_image %s, created_at =%s, updated_at = %s, is_public = %s
-                WHERE id = %s RETURNING *,""",
+                WHERE id = %s RETURNING *;""",
                 (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public, quiz_id),
             )
             updated_quiz = cursor.fetchone()
@@ -331,6 +361,7 @@ def put_update_quiz(con, quiz_id, quiz_creator_id, quiz_title, quiz_description,
     }
 
 def put_update_question(con, question_id, quiz_id, question_text, question_order, time_limit, points, question_type, image):
+    """Updates a specfic question and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -352,6 +383,7 @@ def put_update_question(con, question_id, quiz_id, question_text, question_order
     }
 
 def put_update_answer_alternative(con, answer_alternative_id, question_id, answer_text, is_correct, answer_icon, answer_order):
+    """Updates a specfic answer alternative and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -371,6 +403,7 @@ def put_update_answer_alternative(con, answer_alternative_id, question_id, answe
     }
 
 def put_update_session(con, session_id, session_name, host_user_id, active_quiz, qr_code_id, session_status, started_at, current_question_id, session_code):
+    """Updates a specfic session and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -393,12 +426,13 @@ def put_update_session(con, session_id, session_name, host_user_id, active_quiz,
     }
 
 def put_update_session_player(con, session_player_id, session_id, display_name, user_id, joined_at, player_points):
+    """Updates a specfic session player and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """UPDATE session_players SET session_id = %s, display_name = %s, user_id = %s, joined_at = %s, player_points = %s
                 WHERE id = %s RETURNING *;""",
-                (session_id, display_name, user_id, joined_at, player_points),
+                (session_id, display_name, user_id, joined_at, player_points, session_player_id),
             )
             updated_player = cursor.fetchone()
             con.commit()
@@ -412,6 +446,7 @@ def put_update_session_player(con, session_player_id, session_id, display_name, 
     }
 
 def put_update_player_answer(con, player_answer_id, player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct):
+    """Updates a specfic player answer and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -433,12 +468,13 @@ def put_update_player_answer(con, player_answer_id, player_id, session_id, quest
     }
 
 def put_update_session_scoreboard(con, session_scoreboard_id, session_id, player_id, total_score, correct_answers, rank):
+    """Updates a specfic session scoreboard and returns it"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """UPDATE session_scoreboards SET session_id = %s, player_id = %s, total_score = %s, correct_answers = %s, rank = %s
                 WHERE id = %s RETURNING *;"""
-                (session_id, player_id, total_score, correct_answers, rank, session_scoreboard_id)
+                (session_id, player_id, total_score, correct_answers, rank, session_scoreboard_id),
             )
             updated_scoreboard = cursor.fetchone()
             con.commit()
@@ -454,6 +490,7 @@ def put_update_session_scoreboard(con, session_scoreboard_id, session_id, player
 # ----------- DELETE FUNCTIONS ---------
 
 def delete_user(con, user_id):
+    "Deletes a specific user and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -463,6 +500,7 @@ def delete_user(con, user_id):
     return deleted_user_id
 
 def delete_quiz(con, quiz_id):
+    "Deletes a specific quiz and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -472,6 +510,7 @@ def delete_quiz(con, quiz_id):
     return deleted_quiz_id
 
 def delete_question(con, question_id):
+    "Deletes a specific question and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -481,6 +520,7 @@ def delete_question(con, question_id):
     return deleted_question_id
 
 def delete_answer_alternative(con, answer_alternative_id):
+    "Deletes a specific answer alternative and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
@@ -490,6 +530,7 @@ def delete_answer_alternative(con, answer_alternative_id):
     return deleted_answer_id
 
 def delete_session(con, session_id):
+    "Deletes a specific session and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(
@@ -508,6 +549,7 @@ def delete_session_player(con, session_player_id):
     return deleted_player_id
 
 def delete_player_answer(con, player_answer_id):
+    "Deletes a specific player answer and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -517,6 +559,7 @@ def delete_player_answer(con, player_answer_id):
     return deleted_answer_id
 
 def delete_session_scoreboard(con, session_scoreboard_id):
+    "Deletes a specific session scoreboard and returns its ID"
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
@@ -528,6 +571,7 @@ def delete_session_scoreboard(con, session_scoreboard_id):
 #----- PATCH FUNCTIONS ------
 
 def patch_update_table(update_data: dict, table: str, pk: str = "id"):
+    """Updates specific fields of a specific table"""
     set_clauses = []
     params = []
 
@@ -552,6 +596,3 @@ def patch_update_table(update_data: dict, table: str, pk: str = "id"):
     params.append(None)
 
     return query, params
-
-# STATISKA VÄRDEN KAN INSERTAS I PGADMIN
-# MER DYNAMISKA HÄR I METODERNA

@@ -11,10 +11,7 @@ PASSWORD = os.getenv("PASSWORD")
 
 def get_connection():
     """
-    Function that returns a single connection
-    In reality, we might use a connection pool, since
-    this way we'll start a new connection each time
-    someone hits one of our endpoints, which isn't great for performance
+    Function that returns a single connection.
     """
     try:
         conn = psycopg2.connect(
