@@ -8,41 +8,41 @@ from pydantic import BaseModel, EmailStr, Field
 # you send back to the client follows a certain structure
 
 class UserCreate(BaseModel):
-    user_name: str 
+    user_name: str = Field(min_lenght=3, max_length=50)
     email: EmailStr 
-    password: str 
+    password: str = Field(min_length=8, max_length=50)
     registration_date: datetime
     user_status: int 
     birth_date: date
 
 class UserResponse(BaseModel):
-    user_name: str = Field(max_lenght=50)
+    id: int
+    user_name: str
     email: str
-    password: str = Field(min_lenght=8)
     registration_date: datetime
     user_status: int
     birth_date: date
 
 class UserUpdate(BaseModel):
-    user_name: str 
+    user_name: str = Field(min_lenght=3, max_length=50)
     email: EmailStr 
-    password: str 
+    password: str = Field(min_lenght=8, max_length=50)
     registration_date: datetime
     user_status: int 
     birth_date: date
 
 class UserPatch(BaseModel):
-    user_name: Optional[str] = Field(None, max_lenght=50)
+    user_name: Optional[str] = Field(None, min_length=3, max_length=50)
     email: Optional[EmailStr] = None
-    password: Optional[str] = Field(None, min_lenght=8)
+    password: Optional[str] = Field(None, min_length=8, max_length=50)
     registration_date: Optional[datetime] = None
     user_status: Optional[int] = None
     birth_date: Optional[date] = None
 
 class QuizCreate(BaseModel):
     quiz_creator_id: int
-    quiz_title: str
-    quiz_description: str
+    quiz_title: str = Field(min_length=3, max_length=255)
+    quiz_description: str = Field(max_length=1000)
     intro_image: int
     created_at: datetime
     updated_at: datetime
@@ -59,8 +59,8 @@ class QuizResponse(BaseModel):
 
 class QuizUpdate(BaseModel):
     quiz_creator_id: int
-    quiz_title: str
-    quiz_description: str
+    quiz_title: str = Field(min_length=3, max_length=255)
+    quiz_description: str = Field(max_length=1000)
     intro_image: int
     created_at: datetime
     updated_at: datetime
@@ -68,8 +68,8 @@ class QuizUpdate(BaseModel):
 
 class QuizPatch(BaseModel):
     quiz_creator_id: Optional[int] = None
-    quiz_title: Optional[str] = Field(None, max_lenght=50)
-    quiz_description: Optional[str] = Field(None, max_lenght=50)
+    quiz_title: Optional[str] = Field(None, min_length=3, max_length=255)
+    quiz_description: Optional[str] = Field(None, max_length=1000)
     intro_image: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
@@ -77,7 +77,7 @@ class QuizPatch(BaseModel):
 
 class QuestionCreate(BaseModel):
     qiuz_id: int
-    question_text: str
+    question_text: str = Field(min_length=3, max_length=500)
     question_order: int
     time_limit: int
     points: int
@@ -95,7 +95,7 @@ class QuestionResponse(BaseModel):
 
 class QuestionUpdate(BaseModel):
     qiuz_id: int
-    question_text: str
+    question_text: str = Field(min_length=3, max_length=500)
     question_order: int
     time_limit: int
     points: int
@@ -104,7 +104,7 @@ class QuestionUpdate(BaseModel):
 
 class QuestionPatch(BaseModel):
     qiuz_id: Optional[int] = None
-    question_text: Optional[str] = Field(None, max_lenght=255)
+    question_text: Optional[str] = Field(None, min_length=3, max_length=500)
     question_order: Optional[int] = None
     time_limit: Optional[int] = None
     points: Optional[int] = None
@@ -113,7 +113,7 @@ class QuestionPatch(BaseModel):
 
 class AnswerAlternativeCreate(BaseModel):
     question_id: int
-    answer_text: str
+    answer_text: str = Field(min_length=3, max_length=255)
     is_correct: bool
     answer_icon: int
     answer_order: int
@@ -127,13 +127,13 @@ class AnswerAlternativeResponse(BaseModel):
 
 class AnswerAlternativeUpdate(BaseModel):
     question_id: int
-    answer_text: str
+    answer_text: str = Field(min_length=3, max_length=255)
     is_correct: bool
     answer_icon: int
     answer_order: int
 
 class SessionCreate(BaseModel):
-    session_name: str
+    session_name: str = Field(min_length=3, max_length=255)
     host_user_id: int
     active_quiz: int
     qr_code_id: int
@@ -155,7 +155,7 @@ class SessionResponse(BaseModel):
     session_code: int
 
 class SessionUpdate(BaseModel):
-    session_name: str
+    session_name: str = Field(min_length=3, max_length=255)
     host_user_id: int
     active_quiz: int
     qr_code_id: int
@@ -167,7 +167,7 @@ class SessionUpdate(BaseModel):
 
 class SessionPlayerCreate(BaseModel):
     session_id: int
-    display_name: str
+    display_name: str = Field(min_length=3, max_length=255)
     user_id: int
     joined_at: datetime
     player_points: int
@@ -181,7 +181,7 @@ class SessionPlayerResponse(BaseModel):
 
 class SessionPlayerUpdate(BaseModel):
     session_id: int
-    display_name: str
+    display_name: str = Field(min_length=3, max_length=255)
     user_id: int
     joined_at: datetime
     player_points: int

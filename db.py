@@ -27,80 +27,80 @@ start with a connection parameter.
 #             items = cursor.fetchall()
 #     return items
 
-def get_users(con):
+def get_users(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM users;")
+            cursor.execute("SELECT * FROM users LIMIT %s;", (limit,))
             users = cursor.fetchall()
     return users
 
-def get_quizzes(con):
+def get_quizzes(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM quizzes;")
+            cursor.execute("SELECT * FROM quizzes LIMIT %s;", (limit,))
             quizzes = cursor.fetchall()
     return quizzes
 
-def get_sessions(con):
+def get_sessions(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM sessions;")
+            cursor.execute("SELECT * FROM sessions LIMIT %s;", (limit,))
             sessions = cursor.fetchall()
     return sessions
 
-def get_all_session_players(con):
+def get_all_session_players(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM session_players;")
+            cursor.execute("SELECT * FROM session_players LIMIT %s;", (limit,))
             session_players = cursor.fetchall()
     return session_players
 
-def get_players_for_session(con, session_id):
+def get_players_for_session(con, session_id, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM session_players WHERE session_id = %s""", (session_id,))
+            cursor.execute("""SELECT * FROM session_players WHERE session_id = %s LIMIT = %s""", (session_id, limit,))
             session_players = cursor.fetchall()
     return session_players
 
-def get_questions(con):
+def get_questions(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM questions;")
+            cursor.execute("SELECT * FROM questions LIMIT %s;", (limit,))
             questions = cursor.fetchall()
     return questions
 
-def get_quiz_questions(con, quiz_id):
+def get_quiz_questions(con, quiz_id, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM questions WHERE quiz_id = %s""", (quiz_id,))
+            cursor.execute("""SELECT * FROM questions WHERE quiz_id = %s LIMIT""", (quiz_id, limit,))
             quiz_questions = cursor.fetchall()
     return quiz_questions
 
-def get_question_answer_alternatives(con, question_id):
+def get_question_answer_alternatives(con, question_id, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM answer_alternatives WHERE question_id = %s""", (question_id,))
+            cursor.execute("""SELECT * FROM answer_alternatives WHERE question_id = %s LIMIT %s""", (question_id, limit,))
             answer_alternatives = cursor.fetchall()
             return answer_alternatives
         
-def get_all_player_answers(con):
+def get_all_player_answers(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM player_answers;")
+            cursor.execute("SELECT * FROM player_answers LIMIT %s;", (limit,))
             all_player_answers = cursor.fetchall()
     return all_player_answers
 
-def get_answers_by_player(con, session_player_id):
+def get_answers_by_player(con, session_player_id, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("""SELECT * FROM player_answer WHERE question_id id = %s""", (session_player_id,))
+            cursor.execute("""SELECT * FROM player_answer WHERE question_id id = %s LIMIT %s""", (session_player_id, limit,))
             player_answers = cursor.fetchall()
             return player_answers
         
-def get_session_scoreboards(con):
+def get_session_scoreboards(con, limit: int):
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute("SELECT * FROM session_scoreboards;")
+            cursor.execute("SELECT * FROM session_scoreboards LIMIT %s;", (limit,))
             scoreboards = cursor.fetchall()
     return scoreboards
 

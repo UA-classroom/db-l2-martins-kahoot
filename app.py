@@ -47,7 +47,7 @@ but will have different HTTP-verbs.
 @app.get("/users")
 def list_users():
     con = get_connection()
-    users = db.get_users(con)
+    users = db.get_users(con, limit=10)
     return users
 
 @app.get("/users/{user_id}")
@@ -93,7 +93,7 @@ def delete_user(user_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete user due to foreign key constraints")
     return deleted_user_id
 
-@app.patch("/users/{user_id}")
+@app.patch("/users/{user_id}", response_model=sc.UserResponse)
 def patch_update_user(user_id: int, user_patch: sc.UserPatch):
     update_data = user_patch.model_dump(exclude_unset=True)
 
@@ -131,7 +131,7 @@ def patch_update_user(user_id: int, user_patch: sc.UserPatch):
 @app.get("/quizzes")
 def list_quizzes():
     con = get_connection()
-    quizzes = db.get_quizzes(con)
+    quizzes = db.get_quizzes(con, limit=10)
     return quizzes
 
 @app.get("/quizzes/{quiz_id}")
@@ -173,7 +173,7 @@ def delete_quiz(quiz_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete quiz due to foreign key constraints")
     return deleted_quiz_id
 
-@app.patch("/quizzes/{quiz_id}")
+@app.patch("/quizzes/{quiz_id}", response_model=sc.QuizResponse)
 def patch_update_quiz(quiz_id: int, quiz_patch: sc.QuizPatch):
     update_data = quiz_patch.model_dump(exclude_unset=True)
 
@@ -213,7 +213,7 @@ def patch_update_quiz(quiz_id: int, quiz_patch: sc.QuizPatch):
 @app.get("/questions")
 def list_questions():
     con = get_connection()
-    questions = db.get_questions(con)
+    questions = db.get_questions(con, limit=10)
     return questions
 
 @app.get("/questions/{question_id}")
@@ -227,7 +227,7 @@ def get_question(question_id: int):
 @app.get("/questions/{quiz_id}")
 def get_quiz_questions(con, quiz_id: int):
     con = get_connection()
-    quiz_questions = db.get_quiz_questions(con, quiz_id=quiz_id)
+    quiz_questions = db.get_quiz_questions(con, quiz_id=quiz_id, limit=10)
     if not quiz_questions:
             raise HTTPException(status_code=404, detail="Quiz not found")
     return quiz_questions
@@ -263,7 +263,7 @@ def delete_question(question_id: int):
         raise HTTPException(status_code=400, detail="Cannot delete question due to foreign key constraints")
     return deleted_question_id
 
-@app.patch("/questions/{question_id}")
+@app.patch("/questions/{question_id}", response_model=sc.QuestionResponse)
 def patch_update_question(question_id: int, question_patch: sc.QuestionPatch):
     update_data = question_patch.model_dump(exclude_unset=True)
 
@@ -303,7 +303,7 @@ def patch_update_question(question_id: int, question_patch: sc.QuestionPatch):
 @app.get("/answer_alternatives/{question_id}")
 def get_question_answer_alternatives(question_id: int):
     con = get_connection()
-    answer_alternatives = db.get_question_answer_alternatives(con, question_id=question_id)
+    answer_alternatives = db.get_question_answer_alternatives(con, question_id=question_id, limit=10)
     if not answer_alternatives:
         raise HTTPException(status_code=404, detail="Question not found")
     return answer_alternatives
@@ -352,7 +352,7 @@ def delete_answer_alternative(answer_alternative_id: int):
 @app.get("/sessions")
 def list_sessions():
     con = get_connection()
-    sessions = db.get_sessions(con)
+    sessions = db.get_sessions(con, limit=10)
     return sessions
 
 @app.get("/sessions/{session_id}")
@@ -399,7 +399,7 @@ def delete_session(session_id: int):
 @app.get("/session_players")
 def list_all_session_players():
     con = get_connection()
-    all_session_players = db.get_all_session_players(con)
+    all_session_players = db.get_all_session_players(con, limit=10)
     return all_session_players
 
 @app.get("/session_players/{session_id}")
@@ -454,13 +454,13 @@ def delete_session_player(session_player_id: int):
 @app.get("/player_answers")
 def list_all_player_answers():
     con = get_connection()
-    all_player_answers = db.get_all_player_answers(con)
+    all_player_answers = db.get_all_player_answers(con, limit=10)
     return all_player_answers
 
 @app.get("/player_answers/{session_player_id}")
 def list_answers_by_player(session_player_id: int):
     con = get_connection()
-    player_answers = db.get_answers_by_player(con, session_player_id=session_player_id)
+    player_answers = db.get_answers_by_player(con, session_player_id=session_player_id, limit=10)
     if not player_answers:
             raise HTTPException(status_code=404, detail="Session player not found")
     return player_answers
@@ -509,7 +509,7 @@ def delete_player_answer(player_answer_id: int):
 @app.get("/session_scoreboards")
 def list_session_scoreboards():
     con = get_connection()
-    scoreboards = db.get_session_scoreboards(con)
+    scoreboards = db.get_session_scoreboards(con, limit=10)
     return scoreboards
 
 @app.get("/session_scoreboards/{session_id}")

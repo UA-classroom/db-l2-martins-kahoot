@@ -46,9 +46,9 @@ def create_tables():
     """
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        user_name VARCHAR(255) UNIQUE NOT NULL, 
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) UNIQUE NOT NULL,
+        user_name VARCHAR(50) UNIQUE NOT NULL, 
+        email VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(50) UNIQUE NOT NULL,
         registration_date DATE NOT NULL DEFAULT CURRENT_DATE,
         user_status INT REFERENCES user_statuses(id) NOT NULL,
         birth_date DATE NOT NULL DEFAULT CURRENT_DATE
@@ -57,18 +57,18 @@ def create_tables():
     """
     CREATE TABLE IF NOT EXISTS creators (
         id SERIAL PRIMARY KEY,
-        name VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(50) UNIQUE NOT NULL,
         user_id INT NOT NULL REFERENCES users(id)
         )
     """,
     """ CREATE TABLE IF NOT EXISTS qr_codes (
             id SERIAL PRIMARY KEY,
-            qr_link VARCHAR(255) NOT NULL
+            qr_link VARCHAR(50) NOT NULL
             )
     """,
     """ CREATE TABLE IF NOT EXISTS images (
             id SERIAL PRIMARY KEY,
-            image_url VARCHAR(255) not NULL
+            image_url VARCHAR(50) not NULL
             )
     """,
     """
@@ -99,7 +99,7 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS questions (
         id SERIAL PRIMARY KEY,
         quiz_id INT NOT NULL REFERENCES quizzes(id),
-        question_text VARCHAR(255) NOT NULL,
+        question_text VARCHAR(500) NOT NULL,
         question_order INT,
         time_limit INT NOT NULL,
         points INT DEFAULT 100,
