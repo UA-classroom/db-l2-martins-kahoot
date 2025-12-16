@@ -76,7 +76,7 @@ class QuizPatch(BaseModel):
     is_public: bool | None = None
 
 class QuestionCreate(BaseModel):
-    qiuz_id: int
+    quiz_id: int
     question_text: str = Field(min_length=3, max_length=500)
     question_order: int
     time_limit: int
@@ -85,7 +85,7 @@ class QuestionCreate(BaseModel):
     image: int
 
 class QuestionResponse(BaseModel):
-    qiuz_id: int
+    quiz_id: int
     question_text: str
     question_order: int
     time_limit: int
@@ -94,7 +94,7 @@ class QuestionResponse(BaseModel):
     image: int
 
 class QuestionUpdate(BaseModel):
-    qiuz_id: int
+    quiz_id: int
     question_text: str = Field(min_length=3, max_length=500)
     question_order: int
     time_limit: int
@@ -103,7 +103,7 @@ class QuestionUpdate(BaseModel):
     image: int
 
 class QuestionPatch(BaseModel):
-    qiuz_id: int | None = None
+    quiz_id: int | None = None
     question_text: str | None = Field(None, min_length=3, max_length=500)
     question_order: int | None = None
     time_limit: int | None = None

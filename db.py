@@ -3,29 +3,12 @@ from psycopg2 import errors, sql
 from psycopg2.extras import RealDictCursor
 
 """
-This file is responsible for making database queries, which your fastapi endpoints/routes can use.
+This file is responsible for making database queries, which the fastapi endpoints can use.
 The reason we split them up is to avoid clutter in the endpoints, so that the endpoints might focus on other tasks 
-
-- Try to return results with cursor.fetchall() or cursor.fetchone() when possible
-- Make sure you always give the user response if something went right or wrong, sometimes 
-you might need to use the RETURNING keyword to garantuee that something went right / wrong
-e.g when making DELETE or UPDATE queries
-- No need to use a class here
-- Try to raise exceptions to make them more reusable and work a lot with returns
-- You will need to decide which parameters each function should receive. All functions 
-start with a connection parameter.
-- Below, a few inspirational functions exist - feel free to completely ignore how they are structured
-- E.g, if you decide to use psycopg3, you'd be able to directly use pydantic models with the cursor, these examples are however using psycopg2 and RealDictCursor
 """
 
 
-### THIS IS JUST AN EXAMPLE OF A FUNCTION FOR INSPIRATION FOR A LIST-OPERATION (FETCHING MANY ENTRIES)
-# def get_items(con):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("SELECT * FROM items;")
-#             items = cursor.fetchall()
-#     return items
+# --- Listing get-operations (fetching several entries) --- 
 
 def get_users(con, limit: int):
     """Returns list of users from the database, based on the limit-parameter"""
@@ -116,13 +99,7 @@ def get_session_scoreboards(con, limit: int):
             scoreboards = cursor.fetchall()
     return scoreboards
 
-### THIS IS JUST INSPIRATION FOR A DETAIL OPERATION (FETCHING ONE ENTRY)
-# def get_item(con, item_id):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute("""SELECT * FROM items WHERE id = %s""", (item_id,))
-#             item = cursor.fetchone()
-#             return item
+# --- Detail get-operations (fetching one entry) ---
 
 def get_user(con, user_id):
     """Returns the user with the given id from the database"""
@@ -200,17 +177,7 @@ def get_item(con, table, item_id): # dålig säkerhet, måste fixas eller skitas
             item = cursor.fetchone()
             return item
 
-
-### THIS IS JUST INSPIRATION FOR A CREATE-OPERATION
-# def add_item(con, title, description):
-#     with con:
-#         with con.cursor(cursor_factory=RealDictCursor) as cursor:
-#             cursor.execute(
-#                 "INSERT INTO items (title, description) VALUES (%s, %s) RETURNING id;",
-#                 (title, description),
-#             )
-#             item_id = cursor.fetchone()["id"]
-#     return item_id
+# --- POST/ADD OPERATIONS ---
 
 def add_user(con, user_name, email, password, registration_date, user_status, birth_date):
     """Adds a new user to the database and returns its ID"""
@@ -225,14 +192,14 @@ def add_user(con, user_name, email, password, registration_date, user_status, bi
             con.commit()
     return user_id
 
-def add_quiz(con, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public):
+def add_quiz(con, quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public):
     """Adds a new quiz to the database and returns its ID"""
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                """INSERT INTO quizzes (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public)
-                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id;""",
-                (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, is_public),
+                """INSERT INTO quizzes (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public)
+                VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id;""",
+                (quiz_creator_id, quiz_title, quiz_description, intro_image, created_at, updated_at, is_public),
             )
             quiz_id = cursor.fetchone()["id"]
             con.commit()
@@ -308,15 +275,15 @@ def add_session_scoreboard(con, session_id, player_id, total_score, correct_answ
     with con:
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
-                """INSERT INTO session_scoreboard (session_id, player_id, total_score, correct_answers, rank)
-                VALUES (%s, %s, %s, %s, %s) RETURNING id;"""
+                """INSERT INTO session_scoreboards (session_id, player_id, total_score, correct_answers, rank)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id;""",
                 (session_id, player_id, total_score, correct_answers, rank),
             )
             scoreboard_id = cursor.fetchone()["id"]
             con.commit()
             return scoreboard_id
         
-# -------- PUT FUNCTIONS -------------
+# -------- PUT OPERATIONS -------------
 
 def put_update_user(con, user_id, user_name, email, password, registration_date, user_status, birth_date):
     """Updates a specfic user and returns it"""
@@ -451,7 +418,7 @@ def put_update_player_answer(con, player_answer_id, player_id, session_id, quest
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """UPDATE player_answers SET player_id = %s, session_id = %s, question_id = %s, answer_id = %s, response_time = %s, points_earned = %s, is_correct = %s
-                WHERE id = %s RETURNING *;"""
+                WHERE id = %s RETURNING *;""",
                 (player_id, session_id, question_id, answer_id, response_time, points_earned, is_correct, player_answer_id),
             )
             updated_answer = con.fetchone()
@@ -473,7 +440,7 @@ def put_update_session_scoreboard(con, session_scoreboard_id, session_id, player
         with con.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute(
                 """UPDATE session_scoreboards SET session_id = %s, player_id = %s, total_score = %s, correct_answers = %s, rank = %s
-                WHERE id = %s RETURNING *;"""
+                WHERE id = %s RETURNING *;""",
                 (session_id, player_id, total_score, correct_answers, rank, session_scoreboard_id),
             )
             updated_scoreboard = cursor.fetchone()
@@ -487,7 +454,7 @@ def put_update_session_scoreboard(con, session_scoreboard_id, session_id, player
         "rank": updated_scoreboard.get("rank")
     }
 
-# ----------- DELETE FUNCTIONS ---------
+# ----------- DELETE OPERATIONS ---------
 
 def delete_user(con, user_id):
     "Deletes a specific user and returns its ID"
@@ -568,7 +535,7 @@ def delete_session_scoreboard(con, session_scoreboard_id):
             con.commit()
     return deleted_scoreboard_id
 
-#----- PATCH FUNCTIONS ------
+#----- PATCH OPERATION ------
 
 def patch_update_table(update_data: dict, table: str, pk: str = "id"):
     """Updates specific fields of a specific table"""

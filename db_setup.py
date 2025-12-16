@@ -65,7 +65,7 @@ def create_tables():
     """,
     """ CREATE TABLE IF NOT EXISTS images (
             id SERIAL PRIMARY KEY,
-            image_url VARCHAR(50) not NULL
+            image_url VARCHAR(255) NOT NULL
             )
     """,
     """
@@ -81,10 +81,16 @@ def create_tables():
         )
     """,
     """
-    CREATE TABLE IF NOT EXISTS quiz_hashtags (
+    CREATE TABLE IF NOT EXISTS hashtags (
         id SERIAL PRIMARY KEY,
-        quiz_id INT NOT NULL REFERENCES quizzes(id),
         hashtag_name VARCHAR(255) NOT NULL
+        )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS quiz_hashtags (
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        hashtag_id NOT NULL REFERENCES hashtags(id),
+        PRIMARY KEY (quiz_id, hashtag_id)
         )
     """,
     """ CREATE TABLE question_types (
@@ -135,7 +141,7 @@ def create_tables():
         started_at TIMESTAMP,
         ended_at TIMESTAMP,
         current_question_id INT REFERENCES questions(id),
-        session_code INT NOT NULL
+        session_code INT UNIQUE NOT NULL
         )
     """,
     """
@@ -173,22 +179,53 @@ def create_tables():
     """
     CREATE TABLE IF NOT EXISTS courses (
         id SERIAL PRIMARY KEY,
+        creator_id INT NOT NULL REFERENCES creators(id),
         course_name VARCHAR(255) UNIQUE NOT NULL,
-        description TEXT,
-        quizzes INT REFERENCES quizzes(id)
+        description TEXT
+        )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS course_quizzes (
+        course_id INT NOT NULL REFERENCES courses(id),
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        PRIMARY KEY (course_id, quiz_id)
+        )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS course_hashtags (
+        course_id INT NOT NULL REFERENCES courses(id),
+        hashtag_id NOT NULL REFERENCES hashtags(id),
+        PRIMARY KEY (course_id, hashtag_id)
         )
     """,
     """
     CREATE TABLE IF NOT EXISTS channels (
         id SERIAL PRIMARY KEY,
+        creator_id INT NOT NULL REFERENCES creators(id),
         name VARCHAR(255) UNIQUE NOT NULL,
         description TEXT,
-        quizzes INT REFERENCES quizzes(id)
+        )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS channel_quizzes (
+        channel_id INT NOT NULL REFERENCES channels(id),
+        quiz_id INT NOT NULL REFERENCES quizzes(id),
+        PRIMARY KEY (channel_id, quiz_id)
+        )
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS channel_courses (
+        channel_id INT NOT NULL REFERENCES channel(id),
+        course_id INT NOT NULL REFERENCES courses(id),
+        PRIMARY KEY (channel_id, course_id)
         )
     """,
     """ CREATE TABLE IF NOT EXISTS creator_profiles (
         id SERIAL PRIMARY KEY,
-        creator_id INT NOT NULL REFERENCES creators(id)
+        creator_id INT NOT NULL REFERENCES creators(id),
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL, 
+        profile_picture INT REFERENCES images
         )
     """)
 

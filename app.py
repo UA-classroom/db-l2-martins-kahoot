@@ -12,37 +12,10 @@ from db_setup import get_connection
 app = FastAPI()
 
 """
-ADD ENDPOINTS FOR FASTAPI HERE
-Make sure to do the following:
-- Use the correct HTTP method (e.g get, post, put, delete)
-- Use correct STATUS CODES, e.g 200, 400, 401 etc. when returning a result to the user
-- Use pydantic models whenever you receive user data and need to validate the structure and data types (VG)
-This means you need some error handling that determine what should be returned to the user
-Read more: https://www.geeksforgeeks.org/10-most-common-http-status-codes/
-- Use correct URL paths the resource, e.g some endpoints should be located at the exact same URL, 
-but will have different HTTP-verbs.
+Endpoints for the API, organized by database-table.
 """
 
-
-# INSPIRATION FOR A LIST-ENDPOINT - Not necessary to use pydantic models, but we could to ascertain that we return the correct values
-# @app.get("/items/")
-# def read_items():
-#     con = get_connection()
-#     items = get_items(con)
-#     return {"items": items}
-
-
-# INSPIRATION FOR A POST-ENDPOINT, uses a pydantic model to validate
-# @app.post("/validation_items/")
-# def create_item_validation(item: ItemCreate):
-#     con = get_connection()
-#     item_id = add_item_validation(con, item)
-#     return {"item_id": item_id}
-
-
-# IMPLEMENT THE ACTUAL ENDPOINTS! Feel free to remove
-
-# --- User Endpoints ---
+# --- Users Endpoints ---
 
 @app.get("/users")
 def list_users():
@@ -148,7 +121,7 @@ def patch_update_user(user_id: int, user_patch: sc.UserPatch):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# --- Quizzes endpoints ---
+# --- Quizzes Endpoints ---
 
 @app.get("/quizzes")
 def list_quizzes():
@@ -287,7 +260,7 @@ def add_question(question_input: sc.QuestionCreate):
     try:
         question_id = db.add_question(
             con, 
-            question_input.qiuz_id, 
+            question_input.quiz_id, 
             question_input.question_text, 
             question_input.question_order, 
             question_input.time_limit, 
@@ -368,7 +341,7 @@ def patch_update_question(question_id: int, question_patch: sc.QuestionPatch):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# --- Answer_alternatives Endpoints ---
+# --- Answer alternatives Endpoints ---
 
 @app.get("/answer_alternatives/{question_id}")
 def get_question_answer_alternatives(question_id: int):
