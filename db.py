@@ -168,14 +168,6 @@ def get_scoreboard_for_session(con, session_id):
             cursor.execute("SELECT * FROM session_scoreboard WHERE session_id = %s", (session_id,))
             scoreboard = cursor.fetchone()
             return scoreboard
-        
-# -------------------------------------------------------------------------------------------------------
-def get_item(con, table, item_id): # dålig säkerhet, måste fixas eller skitas i
-    with con:
-        with con.cursor(cursor_factory=RealDictCursor) as cursor:
-            cursor.execute(f"""SELECT * FROM {table} WHERE id = %s""", (item_id,))             
-            item = cursor.fetchone()
-            return item
 
 # --- POST/ADD OPERATIONS ---
 
